@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lead Qualifier — Mosaad's CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#B8955A;--gold-light:#D4B483;--gold-dim:#6B5230;
+  --dark:#080808;--panel:#111010;--surface:#181716;--card:#1E1C1A;
+  --border:#2C2824;--text:#EDE8E0;--muted:#7A7168;--faint:#3A3530;
+  --green:#5A9E78;--amber:#C4883A;--red:#9E5A5A;--radius:14px;
+}
+html,body{height:100%;background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300}
+body{display:flex;flex-direction:column;align-items:center;padding:20px 16px 32px}
+.wrap{width:100%;max-width:680px;display:flex;flex-direction:column;gap:0}
+header{padding:0 0 20px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:36px;height:36px;background:linear-gradient(145deg,var(--gold),var(--gold-dim));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--gold);letter-spacing:.03em;line-height:1.1}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-top:1px}
+.agent-badge{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.setup{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:0}
+.setup-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--gold-light);margin-bottom:6px}
+.setup-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field input{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;outline:none;transition:border-color .2s;width:100%}
+.field input:focus{border-color:var(--gold-dim)}
+::placeholder{color:var(--faint)}
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;border-radius:9px;color:#0D0A06;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;cursor:pointer;letter-spacing:.04em;transition:opacity .2s}
+.btn-primary:hover{opacity:.88}
+.wa-step{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:28px;display:none;flex-direction:column;gap:16px}
+.wa-step.show{display:flex}
+.step-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px}
+.step-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold-light)}
+.wa-msg-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:13.5px;line-height:1.65;color:var(--text);position:relative}
+.wa-msg-box .copy-btn{position:absolute;top:10px;right:10px;background:var(--faint);border:none;border-radius:6px;padding:4px 9px;font-size:10px;color:var(--muted);cursor:pointer;transition:background .2s}
+.wa-msg-box .copy-btn:hover{background:var(--border)}
+.wa-open-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#1A3F2B;border:1px solid #2A6645;border-radius:9px;padding:12px;color:#5DBF87;font-size:13.5px;font-weight:500;cursor:pointer;text-decoration:none;transition:background .2s}
+.wa-open-btn:hover{background:#1F4D34}
+.wa-open-btn svg{width:18px;height:18px;fill:#5DBF87}
+.divider{border:none;border-top:1px solid var(--border)}
+.continue-btn{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13.5px;cursor:pointer;transition:background .2s}
+.continue-btn:hover{background:var(--card)}
+.chat-wrap{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);display:none;flex-direction:column;overflow:hidden}
+.chat-wrap.show{display:flex}
+.chat-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.chat-header-left{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,var(--gold-dim),#3A2A10);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.chat-name{font-size:13.5px;font-weight:500}
+.chat-status{font-size:11px;color:var(--green)}
+.reset-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:5px 11px;color:var(--muted);font-size:11px;cursor:pointer}
+.messages{height:380px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.msg{display:flex;gap:8px;align-items:flex-end;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.agent{justify-content:flex-start}.msg.user{justify-content:flex-end}
+.bubble{max-width:78%;padding:11px 15px;border-radius:16px;font-size:13.5px;line-height:1.55}
+.msg.agent .bubble{background:var(--card);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text)}
+.msg.user .bubble{background:linear-gradient(135deg,var(--gold-dim),#3A2510);border-bottom-right-radius:4px;color:#EDE0CC}
+.msg-time{font-size:9px;color:var(--faint);margin-bottom:4px;flex-shrink:0}
+.typing{display:flex;align-items:center;gap:5px;padding:13px 16px;background:var(--card);border:1px solid var(--border);border-radius:16px;border-bottom-left-radius:4px;width:fit-content}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:dot 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
+.chat-input-row{padding:14px 16px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center}
+.chat-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:10px 18px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;outline:none;transition:border-color .2s}
+.chat-input:focus{border-color:var(--gold-dim)}
+.send-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s;flex-shrink:0}
+.send-btn:hover{opacity:.85}.send-btn svg{width:16px;height:16px;fill:#0D0A06}.send-btn:disabled{opacity:.3;cursor:not-allowed}
+.summary-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:28px;display:none;flex-direction:column;gap:20px}
+.summary-card.show{display:flex}
+.summary-header{display:flex;align-items:center;justify-content:space-between}
+.summary-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-light)}
+.score-badge{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+.score-hot{background:#2A1515;border:1px solid var(--red);color:#D47A7A}
+.score-warm{background:#2A1E10;border:1px solid var(--amber);color:#D4A55A}
+.score-cold{background:#141820;border:1px solid #3A4A6A;color:#7A9ABF}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.s-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:13px 15px}
+.s-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.s-value{font-size:14px;color:var(--text);font-weight:400}
+.s-item.full{grid-column:1/-1}
+.next-action{background:var(--surface);border:1px solid var(--gold-dim);border-radius:9px;padding:15px}
+.next-action .s-label{color:var(--gold-dim)}
+.next-action .s-value{color:var(--gold-light);font-size:14px;line-height:1.5}
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+.action-row button{flex:1;padding:11px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;min-width:120px}
+.btn-wa{background:#1A3F2B;border:1px solid #2A6645;color:#5DBF87}
+.btn-wa:hover{background:#1F4D34}
+.btn-new{background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.btn-new:hover{background:var(--card)}
+.save-code-box{background:var(--surface);border:1px solid var(--gold-dim);border-radius:10px;padding:16px;margin-top:4px}
+.save-code-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:8px}
+.save-code-instructions{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.save-code-text{font-family:monospace;font-size:11px;color:var(--gold-light);word-break:break-all;background:var(--card);padding:10px;border-radius:6px;border:1px solid var(--border);line-height:1.4;max-height:80px;overflow-y:auto}
+.copy-save-btn{margin-top:10px;width:100%;padding:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;border-radius:8px;color:#0D0A06;font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;cursor:pointer;letter-spacing:.04em}
+.copy-save-btn:hover{opacity:.88}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-mark">🏛</div>
+      <div>
+        <div class="logo-text">One Location</div>
+        <div class="logo-sub">Real Estate · Abu Dhabi</div>
+      </div>
+    </div>
+    <div class="agent-badge"><span class="pulse"></span>AI Agent Active</div>
+  </header>
+
+  <div class="setup" id="setupPanel">
+    <div class="setup-title">New Lead</div>
+    <div class="setup-sub">Enter the lead details. The agent will prepare your opening message and then qualify the lead.</div>
+    <div class="field"><label>Lead Name (if known)</label><input type="text" id="leadName" placeholder="e.g. Ahmed, Sarah…"/></div>
+    <div class="field"><label>Lead Phone Number</label><input type="tel" id="leadPhone" placeholder="+971 50 000 0000"/></div>
+    <div class="field"><label>Property / Project</label><input type="text" id="leadProperty" placeholder="e.g. Yas Bay Residences, Reem Hills…"/></div>
+    <button class="btn-primary" onclick="startFlow()">Prepare Opening Message →</button>
+  </div>
+
+  <div class="wa-step" id="waStep">
+    <div><div class="step-label">Step 1 of 2</div><div class="step-title">Send the Opening Message</div></div>
+    <div class="wa-msg-box"><button class="copy-btn" onclick="copyMsg()">Copy</button><span id="waMsgText"></span></div>
+    <a class="wa-open-btn" id="waLink" href="#" target="_blank">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.528 5.855L0 24l6.335-1.502A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.373l-.36-.213-3.727.884.935-3.618-.235-.372A9.818 9.818 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182S21.818 6.578 21.818 12 17.422 21.818 12 21.818z"/></svg>
+      Open WhatsApp & Send
+    </a>
+    <hr class="divider"/>
+    <button class="continue-btn" onclick="goToChat()">✓ Message sent — Start Qualifying the Lead</button>
+  </div>
+
+  <div class="chat-wrap" id="chatWrap">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="avatar">🤖</div>
+        <div><div class="chat-name">Qualification Agent</div><div class="chat-status">● Active</div></div>
+      </div>
+      <button class="reset-btn" onclick="resetAll()">New Lead</button>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="userInput" type="text" placeholder="Type the lead's reply…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+      <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-header">
+      <div class="summary-title">Lead Summary</div>
+      <div class="score-badge" id="scoreBadge"></div>
+    </div>
+    <div class="summary-grid" id="summaryGrid"></div>
+    <div class="next-action">
+      <div class="s-label">Recommended Next Action</div>
+      <div class="s-value" id="nextAction"></div>
+    </div>
+
+    <!-- SAVE CODE BOX -->
+    <div class="save-code-box" id="saveCodeBox" style="display:none;">
+      <div class="save-code-label">💾 Save to CRM</div>
+      <div class="save-code-instructions">Copy this code → go back to your CRM → tap <strong>Update App</strong> → paste → hit Run. The lead will be updated automatically.</div>
+      <div class="save-code-text" id="saveCodeText"></div>
+      <button class="copy-save-btn" onclick="copySaveCode()">📋 Copy Save Code</button>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-wa" id="followUpBtn">📲 Open WhatsApp Follow-up</button>
+      <button class="btn-new" onclick="resetAll()">+ New Lead</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let leadName='', leadPhone='', leadProperty='', leadId='';
+let conversationHistory=[];
+let qualificationDone=false;
+
+// Read URL params — pre-fill from CRM
+const params=new URLSearchParams(window.location.search);
+if(params.get('name'))leadName=params.get('name');
+if(params.get('phone'))leadPhone=params.get('phone');
+if(params.get('property'))leadProperty=params.get('property');
+if(params.get('id'))leadId=params.get('id');
+
+// Pre-fill fields if data came from CRM
+window.addEventListener('DOMContentLoaded',()=>{
+  if(leadName)document.getElementById('leadName').value=leadName;
+  if(leadPhone)document.getElementById('leadPhone').value=leadPhone;
+  if(leadProperty)document.getElementById('leadProperty').value=leadProperty;
+  // Auto-start if all data present
+  if(leadName&&leadPhone&&leadProperty){
+    setTimeout(startFlow, 300);
+  }
+});
+
+const SYSTEM=`You are an AI sales qualification agent for Mosaad at One Location Real Estate, Abu Dhabi.
+
+PERSONA: Professional, warm, concise. You represent Mosaad. Never mention you are AI unless directly asked. If asked, say "I'm Mosaad's assistant."
+
+LANGUAGE: Default English. If lead writes Arabic, switch entirely to Arabic and stay in Arabic.
+
+YOUR GOAL: Qualify the lead through a fork-based system. Gather: intent (live/invest), budget, timeline, decision power, experience with off-plan.
+
+QUALIFICATION FLOW — ask one question at a time, never multiple at once:
+1. After their first reply, ask: "Are you looking for a home to live in, or is this more of an investment?"
+2. Based on answer, ask about budget: "What's the budget range you're working with?"
+3. Ask timeline: "Are you looking to move quickly on the right opportunity, or is this more exploratory for now?"
+4. Ask decision: "Are you deciding on your own, or are you aligning with a partner or family?"
+5. If investor: "Have you invested in Abu Dhabi off-plan before?"
+
+RULES:
+- Keep messages SHORT. Max 2-3 sentences per reply.
+- Never oversell. Never educate endlessly.
+- If the lead gives vague non-answers twice in a row, note it internally.
+- After you have gathered enough info, wrap up warmly: "Perfect, I have a good picture now. Mosaad will be in touch with you shortly with the right options."
+
+ENDING: When conversation is complete, output a special JSON block at the very end of your last message on a new line:
+##SUMMARY##{"name":"...","intent":"Live|Invest|Unclear","budget":"...","timeline":"Urgent|Flexible|Unclear","decisionMaker":"Solo|Partner|Unclear","experience":"Yes|No|N/A","archetype":"Decisive|Skeptic|Illogical|Deferred","score":"Hot|Warm|Cold","nextAction":"..."}##END##
+
+Score logic:
+- Hot: clear intent + real budget + urgent timeline + solo decision
+- Warm: intent clear but timeline flexible or budget vague
+- Cold: vague on 2+ fields, illogical expectations, or unresponsive`;
+
+function startFlow(){
+  leadName=document.getElementById('leadName').value.trim();
+  leadPhone=document.getElementById('leadPhone').value.trim();
+  leadProperty=document.getElementById('leadProperty').value.trim();
+  if(!leadPhone||!leadProperty){alert('Please enter the phone number and property.');return;}
+  const msg=`Hello${leadName?' '+leadName:''}! 👋 Thank you for your inquiry about ${leadProperty}.\n\nI'm Mosaad's assistant at One Location Real Estate. I have a couple of quick questions to make sure we get you exactly what fits — won't take more than 2 minutes. Is that okay?`;
+  document.getElementById('waMsgText').innerText=msg;
+  const phone=leadPhone.replace(/\D/g,'');
+  document.getElementById('waLink').href=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  document.getElementById('setupPanel').style.display='none';
+  document.getElementById('waStep').classList.add('show');
+}
+
+function copyMsg(){
+  navigator.clipboard.writeText(document.getElementById('waMsgText').innerText);
+  document.querySelector('.copy-btn').innerText='Copied!';
+  setTimeout(()=>document.querySelector('.copy-btn').innerText='Copy',1500);
+}
+
+function goToChat(){
+  document.getElementById('waStep').classList.remove('show');
+  document.getElementById('chatWrap').classList.add('show');
+  conversationHistory=[];
+  const context=`The lead's name is "${leadName||'unknown'}", phone: ${leadPhone}, inquired about: ${leadProperty}. The opening WhatsApp message was already sent by Mosaad. The lead has now responded. Begin qualification from their first reply.`;
+  conversationHistory.push({role:'user',content:context});
+  addBubble('agent',`Ready. Type the lead's first reply below and I'll take it from here.`);
+}
+
+function addBubble(role,text){
+  const msgs=document.getElementById('messages');
+  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const div=document.createElement('div');
+  div.className=`msg ${role}`;
+  div.innerHTML=`${role==='agent'?'<div class="avatar" style="width:28px;height:28px;font-size:12px;margin-bottom:18px">🤖</div>':''}<div><div class="bubble">${text.replace(/\n/g,'<br>')}</div><div class="msg-time" style="text-align:${role==='user'?'right':'left'}">${now}</div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  const msgs=document.getElementById('messages');
+  const div=document.createElement('div');
+  div.className='msg agent';div.id='typingIndicator';
+  div.innerHTML='<div class="avatar" style="width:28px;height:28px;font-size:12px;margin-bottom:4px">🤖</div><div class="typing"><span></span><span></span><span></span></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function removeTyping(){const t=document.getElementById('typingIndicator');if(t)t.remove();}
+
+async function sendMsg(){
+  if(qualificationDone)return;
+  const input=document.getElementById('userInput');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  document.getElementById('sendBtn').disabled=true;
+  addBubble('user',text);
+  conversationHistory.push({role:'user',content:text});
+  showTyping();
+  try{
+    const res=await fetch('https://tiny-haze-a32e.mosad3323.workers.dev/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:conversationHistory})
+    });
+    const data=await res.json();
+    const raw=data.content?.[0]?.text||'';
+    removeTyping();
+    if(raw.includes('##SUMMARY##')){
+      const parts=raw.split('##SUMMARY##');
+      const visibleText=parts[0].trim();
+      if(visibleText)addBubble('agent',visibleText);
+      conversationHistory.push({role:'assistant',content:raw});
+      const jsonStr=parts[1].replace('##END##','').trim();
+      try{const s=JSON.parse(jsonStr);qualificationDone=true;setTimeout(()=>showSummary(s),800);}
+      catch(e){console.error('Summary parse error',e);}
+    }else{
+      addBubble('agent',raw);
+      conversationHistory.push({role:'assistant',content:raw});
+    }
+  }catch(e){
+    removeTyping();
+    addBubble('agent','Connection issue. Please check your network and try again.');
+  }
+  document.getElementById('sendBtn').disabled=false;
+  document.getElementById('userInput').focus();
+}
+
+function showSummary(s){
+  document.getElementById('chatWrap').classList.remove('show');
+  const card=document.getElementById('summaryCard');
+  card.classList.add('show');
+  const badge=document.getElementById('scoreBadge');
+  badge.textContent=s.score;
+  badge.className='score-badge '+(s.score==='Hot'?'score-hot':s.score==='Warm'?'score-warm':'score-cold');
+  const fields=[
+    {label:'Name',value:s.name||leadName||'—'},
+    {label:'Intent',value:s.intent},
+    {label:'Budget',value:s.budget},
+    {label:'Timeline',value:s.timeline},
+    {label:'Decision Maker',value:s.decisionMaker},
+    {label:'Off-Plan Experience',value:s.experience},
+    {label:'Buyer Archetype',value:s.archetype,full:true},
+  ];
+  const grid=document.getElementById('summaryGrid');
+  grid.innerHTML='';
+  fields.forEach(f=>{
+    const div=document.createElement('div');
+    div.className='s-item'+(f.full?' full':'');
+    div.innerHTML=`<div class="s-label">${f.label}</div><div class="s-value">${f.value||'—'}</div>`;
+    grid.appendChild(div);
+  });
+  document.getElementById('nextAction').textContent=s.nextAction||'—';
+
+  // Generate save code
+  if(leadId){
+    generateSaveCode(s);
+  }
+
+  // WA follow-up
+  const followUpMsg=`Hi${leadName?' '+leadName:''}! This is Mosaad from One Location Real Estate. I wanted to personally follow up regarding ${leadProperty}. When would be a good time for a quick call?`;
+  const phone=leadPhone.replace(/\D/g,'');
+  document.getElementById('followUpBtn').onclick=()=>{window.open(`https://wa.me/${phone}?text=${encodeURIComponent(followUpMsg)}`,'_blank');};
+}
+
+function generateSaveCode(s){
+  const scoreToStatus={Hot:'hot',Warm:'warm',Cold:'cold'};
+  const status=scoreToStatus[s.score]||'cold';
+  const today=new Date().toISOString().slice(0,10);
+
+  // Build qualification record
+  const qual={
+    date:today,
+    score:s.score,
+    intent:s.intent,
+    budget:s.budget,
+    timeline:s.timeline,
+    decisionMaker:s.decisionMaker,
+    experience:s.experience,
+    archetype:s.archetype,
+    nextAction:s.nextAction
+  };
+
+  // Build the INJECT_JS command
+  const cmd=`INJECT_JS (function(){const id=${leadId};const lead=DB.leads.find(l=>l.id===id);if(!lead){alert('Lead not found');return;}lead.status='${status}';lead.nextAction=${JSON.stringify(s.nextAction||'')};if(!lead.qualifications)lead.qualifications=[];lead.qualifications.push(${JSON.stringify(qual)});DB.logs.push({id:DB.nextLogId++,leadId:id,type:'AI Qualification',period:'Morning',outcome:'${s.score} — ${s.intent} · ${s.budget} · ${s.timeline}',notes:'Archetype: ${s.archetype}. Next: ${(s.nextAction||'').replace(/'/g,"\\'")}',date:'${today}'});saveDB();renderDashboard();renderPipeline();renderLeadsList();alert('✓ Saved. Lead updated to ${s.score}.');})();`;
+
+  document.getElementById('saveCodeText').textContent=cmd;
+  document.getElementById('saveCodeBox').style.display='block';
+}
+
+function copySaveCode(){
+  const code=document.getElementById('saveCodeText').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    document.querySelector('.copy-save-btn').textContent='✓ Copied! Now paste in CRM → Update App → Run';
+    setTimeout(()=>document.querySelector('.copy-save-btn').textContent='📋 Copy Save Code',3000);
+  });
+}
+
+function resetAll(){
+  leadName='';leadPhone='';leadProperty='';leadId='';
+  conversationHistory=[];qualificationDone=false;
+  document.getElementById('leadName').value='';
+  document.getElementById('leadPhone').value='';
+  document.getElementById('leadProperty').value='';
+  document.getElementById('messages').innerHTML='';
+  document.getElementById('setupPanel').style.display='block';
+  document.getElementById('waStep').classList.remove('show');
+  document.getElementById('chatWrap').classList.remove('show');
+  document.getElementById('summaryCard').classList.remove('show');
+  document.getElementById('summaryGrid').innerHTML='';
+  document.getElementById('saveCodeBox').style.display='none';
+}
+</script>
+</body>
+</html>
