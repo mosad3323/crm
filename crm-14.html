@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mosaad's CRM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
+  :root{--bg:#f4f1ec;--surface:#fff;--surface2:#f9f7f3;--border:#e0dbd2;--accent:#b8860b;--accent2:#2e5d8e;--text:#1e2a38;--muted:#8a8a7a;--danger:#c0392b;--warn:#d4890a;--success:#2e7d32;
+    --synced:#2e7d32;--trans:#d4890a;--async:#2e5d8e;--blocked:#6b3fa0;--dead:#888;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;border-bottom:2px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
+  .logo{font-size:20px;font-weight:900;color:var(--text);letter-spacing:-0.5px;}.logo span{color:var(--accent);}
+  .header-right{display:flex;gap:10px;align-items:center;}
+  .today-date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);font-weight:500;}
+  .btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;border:2px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);transition:all 0.15s;}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}.btn.primary:hover{background:#a07608;}
+  .btn.secondary{background:var(--accent2);color:#fff;border-color:var(--accent2);}.btn.secondary:hover{background:#245070;}
+  .btn.sm{font-size:12px;padding:6px 14px;border-radius:6px;border-width:1.5px;}
+  .btn.xs{font-size:11px;padding:4px 10px;border-radius:5px;border-width:1.5px;}
+  .btn.danger{border-color:var(--danger);color:var(--danger);background:#fff;}.btn.danger:hover{background:var(--danger);color:#fff;}
+  main{padding:24px 28px;max-width:1400px;margin:0 auto;}
+  .tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:24px;}
+  .tab{font-size:14px;font-weight:700;padding:12px 20px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.15s;border-radius:6px 6px 0 0;}
+  .tab.active{color:var(--accent2);border-bottom-color:var(--accent2);}
+  .tab:hover{color:var(--text);background:var(--surface2);}
+  .view{display:none;}.view.active{display:block;}
+  .page-title{font-size:26px;font-weight:900;color:var(--text);margin-bottom:20px;letter-spacing:-0.5px;}
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:16px;}
+  .stat-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:18px 20px;transition:all 0.15s;}
+  .stat-card.link{cursor:pointer;}.stat-card.link:hover{border-color:var(--accent2);box-shadow:0 2px 10px rgba(46,93,142,0.1);}
+  .stat-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+  .stat-value{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--text);line-height:1;}
+  .stat-value.gold{color:var(--accent);}.stat-value.blue{color:var(--accent2);}.stat-value.green{color:var(--success);}.stat-value.red{color:var(--danger);}
+  .stat-sub{font-size:11px;color:var(--muted);margin-top:5px;font-weight:500;}
+
+  /* MODE STRIP */
+  .mode-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px;padding:14px 18px;background:var(--surface);border:2px solid var(--border);border-radius:12px;}
+  .mode-strip-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border-radius:8px;cursor:pointer;transition:all 0.15s;}
+  .mode-strip-item:hover{background:var(--surface2);}
+  .mode-strip-icon{font-size:18px;line-height:1;}
+  .mode-strip-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
+  .mode-strip-count{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;line-height:1;}
+  .mode-strip-value{font-size:10px;font-weight:600;color:var(--muted);}
+  .ms-synced .mode-strip-label{color:var(--synced);} .ms-synced .mode-strip-count{color:var(--synced);}
+  .ms-trans .mode-strip-label{color:var(--trans);} .ms-trans .mode-strip-count{color:var(--trans);}
+  .ms-async .mode-strip-label{color:var(--async);} .ms-async .mode-strip-count{color:var(--async);}
+  .ms-blocked .mode-strip-label{color:var(--blocked);} .ms-blocked .mode-strip-count{color:var(--blocked);}
+  .ms-dead .mode-strip-label{color:var(--dead);} .ms-dead .mode-strip-count{color:var(--dead);}
+
+  /* REALISTIC PIPELINE BANNER */
+  .pipeline-reality{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+  .reality-card{border-radius:12px;padding:18px 22px;border:2px solid;}
+  .reality-card.real{background:#f0faf4;border-color:#a0d8b8;}
+  .reality-card.total{background:var(--surface2);border-color:var(--border);}
+  .reality-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .reality-card.real .reality-label{color:var(--synced);}
+  .reality-card.total .reality-label{color:var(--muted);}
+  .reality-value{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;}
+  .reality-card.real .reality-value{color:var(--synced);}
+  .reality-card.total .reality-value{color:var(--muted);}
+  .reality-sub{font-size:11px;font-weight:600;margin-top:4px;}
+  .reality-card.real .reality-sub{color:#4a8a50;}
+  .reality-card.total .reality-sub{color:var(--muted);}
+
+  /* TODAY'S FOCUS */
+  .focus-section{margin-bottom:28px;}
+  .focus-group{margin-bottom:16px;}
+  .focus-group-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  .focus-card{display:flex;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:8px;align-items:flex-start;transition:all 0.15s;}
+  .focus-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+  .focus-card.synced{border-left:4px solid var(--synced);}
+  .focus-card.trans{border-left:4px solid var(--trans);}
+  .focus-card.blocked{border-left:4px solid var(--blocked);}
+  .focus-card.async{border-left:4px solid var(--async);opacity:0.85;}
+  .focus-info{flex:1;}
+  .focus-name{font-size:14px;font-weight:800;color:var(--text);}
+  .focus-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+  .focus-next{font-size:12px;font-weight:700;color:var(--accent2);margin-top:4px;}
+  .focus-action-hint{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;margin-top:5px;}
+  .hint-synced{background:#eaf4e0;color:var(--synced);border:1px solid #b0d8a0;}
+  .hint-trans{background:#fdf0e0;color:var(--trans);border:1px solid #e8d0a0;}
+  .hint-blocked{background:#f3eeff;color:var(--blocked);border:1px solid #c8b0e8;}
+  .hint-async{background:#eef4fb;color:var(--async);border:1px solid #b0cce8;}
+
+  /* MODE TAGS */
+  .mode-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;margin-left:5px;}
+  .mode-synced{background:#eaf4e0;color:var(--synced);border:1.5px solid #b0d8a0;}
+  .mode-trans{background:#fdf0e0;color:var(--trans);border:1.5px solid #e8d0a0;}
+  .mode-async{background:#eef4fb;color:var(--async);border:1.5px solid #b0cce8;}
+  .mode-blocked{background:#f3eeff;color:var(--blocked);border:1.5px solid #c8b0e8;}
+  .mode-dead{background:#f0f0ee;color:#888;border:1.5px solid #d0d0c8;}
+  .mode-unclassified{background:#f5f5f0;color:#aaa;border:1.5px solid #ddd;font-style:italic;}
+
+  /* PIPELINE */
+  .pipeline{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;align-items:flex-start;}
+  .stage-col{min-width:230px;background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:14px;}
+  .stage-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .stage-name{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+  .stage-pill{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:var(--surface);padding:3px 9px;border-radius:20px;border:1.5px solid var(--border);color:var(--text);}
+  .lead-card{background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;transition:all 0.15s;}
+  .lead-card:hover{box-shadow:0 2px 10px rgba(0,0,0,0.07);border-color:#c8c0b4;}
+  .lead-name{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px;}
+  .lead-meta{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:500;line-height:1.5;}
+  .lead-chips{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;}
+  .chip-gold{background:#fef9ee;border:1.5px solid #e8d5a0;color:var(--accent);}
+  .chip-blue{background:#eef4fb;border:1.5px solid #b0cce8;color:var(--accent2);}
+  .chip-score{border:1.5px solid transparent;}
+  .lead-next-action{font-size:11px;font-weight:700;color:var(--accent2);margin-bottom:6px;padding:4px 8px;background:#eef4fb;border-radius:5px;border-left:3px solid var(--accent2);}
+  .lead-next-action.overdue{color:var(--danger);background:#fde8e8;border-left-color:var(--danger);}
+  .lead-btns{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+  .no-leads{font-size:13px;color:var(--muted);text-align:center;padding:16px 0;font-weight:600;}
+
+  /* INTENT TAGS */
+  .intent-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);}
+
+  .wa-btn{font-size:11px;font-weight:800;padding:4px 11px;border-radius:6px;border:2px solid #25d366;color:#25d366;background:transparent;cursor:pointer;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;}
+  .wa-btn:hover{background:#25d366;color:#fff;}
+  .move-btn{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;border:1.5px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;transition:all 0.15s;}
+  .move-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .edit-btn{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;border:1.5px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;transition:all 0.15s;margin-left:auto;}
+  .edit-btn:hover{border-color:var(--warn);color:var(--warn);}
+  .score-btn{font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;border:1.5px solid var(--accent2);color:var(--accent2);background:transparent;cursor:pointer;transition:all 0.15s;}
+  .score-btn:hover{background:var(--accent2);color:#fff;}
+  .hist-btn{font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;border:1.5px solid var(--muted);color:var(--muted);background:transparent;cursor:pointer;transition:all 0.15s;}
+  .hist-btn:hover{border-color:var(--text);color:var(--text);}
+
+  .log-entry{display:flex;gap:14px;padding:14px 16px;border:2px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:10px;align-items:center;transition:all 0.15s;}
+  .log-entry:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+  .log-time{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);min-width:90px;font-weight:700;line-height:1.4;}
+  .log-body{flex:1;}
+  .log-title{font-size:15px;font-weight:700;}
+  .log-detail{font-size:13px;color:var(--muted);margin-top:3px;font-weight:500;}
+
+  .filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .filter-btn{font-size:13px;font-weight:700;padding:6px 16px;border-radius:20px;border:2px solid var(--border);cursor:pointer;background:var(--surface);color:var(--muted);transition:all 0.15s;}
+  .filter-btn.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+  .filter-btn:hover:not(.active){border-color:var(--accent2);color:var(--accent2);}
+
+  .leads-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:12px;overflow:hidden;border:2px solid var(--border);}
+  .leads-table th{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;padding:10px 12px;text-align:left;background:var(--surface2);border-bottom:2px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap;}
+  .leads-table th:hover{color:var(--accent2);}
+  .leads-table th.sorted{color:var(--accent2);}
+  .leads-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;font-weight:500;}
+  .leads-table tr:last-child td{border-bottom:none;}
+  .leads-table tr:hover td{background:var(--surface2);}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(30,42,56,0.45);z-index:200;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:28px;width:600px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 10px 50px rgba(0,0,0,0.15);}
+  .modal-title{font-size:22px;font-weight:900;color:var(--text);margin-bottom:20px;letter-spacing:-0.5px;}
+  .modal-section{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:18px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--border);}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:2px solid var(--border);}
+  .form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+  .form-label{font-size:12px;font-weight:700;color:var(--text);}
+  .form-hint{font-size:11px;color:var(--muted);font-weight:500;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-row.three{grid-template-columns:1fr 1fr 1fr;}
+  .input{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;background:var(--surface2);border:2px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);width:100%;outline:none;transition:border-color 0.15s;}
+  .input:focus{border-color:var(--accent2);background:#fff;}
+  .input::placeholder{color:#bbb;font-weight:400;}
+  select.input option{background:#fff;}
+  .payment-group{display:none;flex-direction:column;gap:5px;margin-bottom:12px;}
+  .payment-group.visible{display:flex;}
+
+  /* SIGNAL PICKER */
+  .signal-question{font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px;padding:12px 16px;background:var(--surface2);border-radius:10px;border-left:4px solid var(--accent2);}
+  .signal-group{margin-bottom:16px;}
+  .signal-group-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .signal-btn{width:100%;text-align:left;font-size:13px;font-weight:600;padding:10px 14px;border-radius:8px;border:2px solid var(--border);cursor:pointer;background:var(--surface2);color:var(--text);transition:all 0.15s;margin-bottom:6px;display:block;font-family:'Inter',sans-serif;}
+  .signal-btn:hover{border-color:var(--accent2);background:#eef4fb;color:var(--accent2);}
+  .signal-btn.selected{border-color:var(--accent2);background:var(--accent2);color:#fff;}
+  .signal-btn.selected-synced{border-color:var(--synced);background:var(--synced);color:#fff;}
+  .signal-btn.selected-trans{border-color:var(--trans);background:var(--trans);color:#fff;}
+  .signal-btn.selected-async{border-color:var(--async);background:var(--async);color:#fff;}
+  .signal-btn.selected-blocked{border-color:var(--blocked);background:var(--blocked);color:#fff;}
+  .signal-btn.selected-dead{border-color:var(--dead);background:var(--dead);color:#fff;}
+
+  /* BLOCKED INTERVENTION */
+  .intervention-box{background:#f3eeff;border:2px solid #c8b0e8;border-radius:10px;padding:14px 16px;margin-top:12px;display:none;}
+  .intervention-box.show{display:block;}
+  .intervention-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--blocked);margin-bottom:6px;}
+  .intervention-text{font-size:13px;font-weight:600;color:var(--text);line-height:1.6;}
+
+  .period-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+  .period-btn{font-size:13px;font-weight:700;padding:9px 11px;border-radius:8px;border:2px solid var(--border);cursor:pointer;background:var(--surface2);color:var(--text);transition:all 0.15s;text-align:center;}
+  .period-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .period-btn.selected{border-color:var(--accent);background:var(--accent);color:#fff;}
+
+  .followup-section{background:var(--surface);border:2px solid var(--border);border-radius:12px;margin-bottom:24px;overflow:hidden;}
+  .followup-header{padding:14px 18px;background:var(--surface2);border-bottom:2px solid var(--border);}
+  .followup-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:10px;}
+  .followup-filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .fu-filter{font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;border:2px solid var(--border);cursor:pointer;background:var(--surface);color:var(--muted);transition:all 0.15s;}
+  .fu-filter.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+  .fu-filter.overdue{border-color:var(--danger);color:var(--danger);}
+  .fu-filter.overdue.active{background:var(--danger);color:#fff;}
+  .followup-card{display:flex;gap:14px;padding:12px 18px;border-bottom:1px solid var(--border);align-items:center;}
+  .followup-card:last-child{border-bottom:none;}
+  .followup-card:hover{background:var(--surface2);}
+  .followup-info{flex:1;}
+  .followup-name{font-size:14px;font-weight:800;color:var(--text);}
+  .followup-meta{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;}
+  .followup-next{font-size:11px;font-weight:700;color:var(--accent2);margin-top:3px;}
+  .followup-due{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .due-today{background:#fde8e8;color:#b03020;border:1.5px solid #f0c0b8;}
+  .due-overdue{background:#2e1a1a;color:#f06e6e;border:1.5px solid #c03020;}
+  .no-followups{padding:20px 18px;color:var(--muted);font-size:14px;font-weight:600;}
+  .day-group{margin-bottom:16px;}
+  .day-label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:6px 0;margin-bottom:8px;border-bottom:1px solid var(--border);}
+
+  .score-modal{width:620px;}
+  .score-criteria{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+  .score-criteria-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px;}
+  .score-check-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+  .score-check-row:last-child{border-bottom:none;}
+  .score-check-row input{width:17px;height:17px;cursor:pointer;accent-color:var(--accent2);}
+  .score-check-label{font-size:13px;font-weight:600;color:var(--text);flex:1;}
+  .score-check-pts{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--accent2);}
+  .distress-row{background:#fff8f8;border-radius:8px;padding:8px 12px;margin-top:6px;border:1.5px solid #f0c0b8;}
+  .score-result{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin-top:4px;}
+  .score-big{font-family:'JetBrains Mono',monospace;font-size:40px;font-weight:700;color:var(--accent2);line-height:1;}
+  .score-followup-txt{font-size:12px;color:var(--muted);font-weight:600;margin-top:4px;}
+  .history-entry{padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);margin-bottom:8px;}
+  .history-date{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:700;margin-bottom:3px;}
+  .history-type{font-size:13px;font-weight:700;color:var(--text);}
+  .history-outcome{font-size:12px;color:var(--accent2);font-weight:600;margin-top:2px;}
+  .history-notes{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;}
+
+  .settings-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:20px;flex-wrap:wrap;}
+  .settings-label{font-size:13px;font-weight:700;color:var(--muted);}
+  .settings-input{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;background:var(--surface2);border:2px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--accent);width:70px;outline:none;text-align:center;}
+  .settings-input:focus{border-color:var(--accent);}
+  .command-area{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:20px;}
+  .cmd-result{font-family:'JetBrains Mono',monospace;font-size:13px;margin-top:12px;padding:10px 14px;border-radius:8px;display:none;font-weight:600;}
+  .cmd-result.ok{background:#eaf4e0;color:#4a8a20;border:2px solid #c0e0a0;display:block;}
+  .cmd-result.err{background:#fce8e8;color:#b03020;border:2px solid #f0b0a8;display:block;}
+  .backup-row{display:flex;gap:10px;margin-top:20px;padding-top:18px;border-top:2px solid var(--border);flex-wrap:wrap;}
+  .sec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .sec-title{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.3px;}
+
+  /* PENDING SIGNAL BADGE */
+  .pending-badge{font-size:9px;font-weight:800;padding:1px 6px;border-radius:10px;background:#fff3cd;color:#856404;border:1px solid #ffd700;text-transform:uppercase;letter-spacing:0.5px;}
+
+  @media print{
+    header,.tabs,.backup-row,.btn,.edit-btn,.wa-btn,.move-btn,.score-btn,.hist-btn,#noprint,.filter-bar,.followup-section,.fu-filter,.focus-section{display:none!important;}
+    body{background:#fff;color:#000;font-size:12px;}
+    .view{display:none!important;}#view-report{display:block!important;}
+    .leads-table th{background:#f0ede8;cursor:default;}
+  }
+  @media(max-width:640px){
+    main{padding:14px;}.form-row,.form-row.three{grid-template-columns:1fr;}
+    .pipeline{flex-direction:column;}.stage-col{min-width:unset;}
+    header{padding:0 14px;}.period-grid{grid-template-columns:1fr;}
+    .pipeline-reality{grid-template-columns:1fr;}
+    .mode-strip{grid-template-columns:repeat(3,1fr);}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Mosaad's <span>CRM</span></div>
+  <div class="header-right">
+    <span class="today-date" id="dateDisplay"></span>
+    <button class="btn sm secondary" onclick="switchTab('report')" id="noprint">📄 Report</button>
+    <button class="btn sm primary" onclick="openAddLead()">+ New Lead</button>
+  </div>
+</header>
+<main>
+  <div class="tabs" id="noprint">
+    <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+    <div class="tab" onclick="switchTab('pipeline')">Pipeline</div>
+    <div class="tab" onclick="switchTab('leads')">All Leads</div>
+    <div class="tab" onclick="switchTab('daily')">Daily Log</div>
+    <div class="tab" onclick="switchTab('command')">Update App</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dashboard">
+    <div class="settings-row">
+      <span class="settings-label">Default Commission Rate:</span>
+      <input class="settings-input" id="commRate" type="number" step="0.1" min="0" max="10" value="2" onchange="saveSettings();renderDashboard();">
+      <span class="settings-label">%</span>
+      <span class="settings-label" style="font-size:11px;color:#bbb;">Agents = 1% · Override per lead</span>
+    </div>
+
+    <!-- PIPELINE REALITY -->
+    <div class="pipeline-reality" id="pipelineReality"></div>
+
+    <!-- MODE STRIP -->
+    <div class="mode-strip" id="modeStrip"></div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- TODAY'S FOCUS -->
+    <div class="focus-section">
+      <div class="sec-header"><div class="sec-title">🎯 Today's Focus</div></div>
+      <div id="focusSynced" class="focus-group"></div>
+      <div id="focusTrans" class="focus-group"></div>
+      <div id="focusBlocked" class="focus-group"></div>
+    </div>
+
+    <div class="sec-header"><div class="sec-title">Recent Leads</div></div>
+    <div id="recentLeads"></div>
+    <div class="backup-row">
+      <button class="btn sm" onclick="exportData()">⬇ Export Backup</button>
+      <button class="btn sm" onclick="importData()">⬆ Import Backup</button>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="view" id="view-pipeline">
+    <div class="page-title">Pipeline</div>
+    <div class="pipeline" id="pipelineView"></div>
+  </div>
+
+  <!-- ALL LEADS -->
+  <div class="view" id="view-leads">
+    <div class="page-title">All Leads</div>
+    <div class="filter-bar" id="filterBar"></div>
+    <div style="margin-bottom:12px;">
+      <input class="input" id="leadSearch" placeholder="Search by name or project..." style="max-width:320px;" oninput="renderLeadsList()">
+    </div>
+    <table class="leads-table">
+      <thead id="leadsHead"></thead>
+      <tbody id="leadsBody"></tbody>
+    </table>
+  </div>
+
+  <!-- DAILY LOG -->
+  <div class="view" id="view-daily">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div class="page-title" id="logDateLabel" style="margin-bottom:0;"></div>
+      <button class="btn sm primary" onclick="openAddLog()">+ Log Activity</button>
+    </div>
+    <div class="followup-section">
+      <div class="followup-header">
+        <div class="followup-title">📋 Follow-Up</div>
+        <div class="followup-filters">
+          <button class="fu-filter overdue" onclick="setFuFilter('yesterday')" id="fu-yesterday">Yesterday</button>
+          <button class="fu-filter active" onclick="setFuFilter('today')" id="fu-today">Today</button>
+          <button class="fu-filter" onclick="setFuFilter('tomorrow')" id="fu-tomorrow">Tomorrow</button>
+          <button class="fu-filter" onclick="setFuFilter('week')" id="fu-week">This Week</button>
+          <button class="fu-filter" onclick="setFuFilter('blocked')" id="fu-blocked">Blocked</button>
+          <button class="fu-filter" onclick="setFuFilter('nevercontacted')" id="fu-nevercontacted">Never Contacted</button>
+          <button class="fu-filter" onclick="setFuFilter('noanswer')" id="fu-noanswer">No Answer</button>
+        </div>
+      </div>
+      <div id="followupList"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="sec-title">Activity Log</div>
+    </div>
+    <div class="filter-bar" id="logFilterBar"></div>
+    <div id="logList"></div>
+  </div>
+
+  <!-- COMMAND -->
+  <div class="view" id="view-command">
+    <div class="page-title">Update App</div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:20px;font-weight:500;">Tell Claude what you want changed. He gives you a command, paste it here and hit Run.</p>
+    <div class="command-area">
+      <div class="form-group">
+        <label class="form-label">Paste Command from Claude</label>
+        <textarea class="input" id="commandInput" rows="4" placeholder="INJECT_JS ..."></textarea>
+      </div>
+      <button class="btn primary sm" onclick="runCommand()">Run Command</button>
+      <div class="cmd-result" id="cmdResult"></div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="view" id="view-report">
+    <div class="page-title">Pipeline Report <small id="reportDate"></small></div>
+    <div id="reportContent"></div>
+    <div style="margin-top:20px;display:flex;gap:10px;" id="noprint">
+      <button class="btn primary" onclick="window.print()">🖨 Print / Save PDF</button>
+      <button class="btn sm" onclick="switchTab('dashboard')">← Back</button>
+    </div>
+  </div>
+</main>
+
+<!-- LEAD MODAL -->
+<div class="modal-overlay" id="addLeadModal">
+  <div class="modal">
+    <div class="modal-title" id="leadModalTitle">New Lead</div>
+    <input type="hidden" id="editLeadId">
+    <div class="modal-section">Client Info</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="input" id="lName" placeholder="Full name"></div>
+      <div class="form-group"><label class="form-label">Date Received</label><input class="input" type="date" id="lDate"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Primary Phone <span class="form-hint">(WhatsApp)</span></label>
+        <input class="input" id="lPhone" placeholder="971501234567">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Secondary Phone <span class="form-hint">(call only)</span></label>
+        <input class="input" id="lPhone2" placeholder="971501234567">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Client Type</label>
+        <select class="input" id="lClientType" onchange="onClientTypeChange()">
+          <option value="end_user">End User</option><option value="investor">Investor</option><option value="agent">Agent</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Intent Type</label>
+        <select class="input" id="lIntentType">
+          <option value="">— Select —</option>
+          <option value="end_user_urgent">End User — Urgent</option>
+          <option value="end_user_future">End User — Future</option>
+          <option value="flip_handover">Flip / Handover</option>
+          <option value="hold_rent">Hold to Rent</option>
+          <option value="explorer">Explorer</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Source</label>
+        <select class="input" id="lSource">
+          <option>Referral</option><option>Property Finder</option><option>Bayut</option>
+          <option>Instagram</option><option>Walk-in</option><option>Cold Call</option>
+          <option>WhatsApp</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Engagement Mode <span class="form-hint">(auto-set by logs)</span></label>
+        <select class="input" id="lMode">
+          <option value="">— Unclassified —</option>
+          <option value="synced">🟢 Synchronized</option>
+          <option value="trans">🟡 Transitioning</option>
+          <option value="async">🔵 Asynchronous</option>
+          <option value="blocked">⚫ Blocked</option>
+          <option value="dead">🔴 Dead</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-section">Property</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Property Type</label>
+        <select class="input" id="lPropertyType" onchange="onPropertyTypeChange()">
+          <option value="off_plan">Off-Plan</option><option value="ready">Ready / Secondary</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Project / Area</label><input class="input" id="lProject" placeholder="e.g. Yas Acres, Al Reem"></div>
+    </div>
+    <div class="payment-group" id="paymentGroup">
+      <label class="form-label">Payment Method</label>
+      <select class="input" id="lPayment">
+        <option value="cash">Cash</option><option value="mortgage_approved">Mortgage — Approved</option>
+        <option value="mortgage_not_approved">Mortgage — Not Approved</option><option value="not_decided">Not Decided</option>
+      </select>
+    </div>
+    <div class="modal-section">Deal</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Stage</label><select class="input" id="lStage"></select></div>
+      <div class="form-group"><label class="form-label">Unit Value (AED)</label><input class="input" id="lValue" placeholder="e.g. 1500000" type="number" oninput="updateCommPreview()"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Commission % <span class="form-hint">(blank = auto)</span></label><input class="input" id="lComm" placeholder="Auto" type="number" step="0.1" oninput="updateCommPreview()"></div>
+      <div class="form-group" style="justify-content:flex-end;padding-top:24px;"><span id="lCommPreview" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);font-weight:700;"></span></div>
+    </div>
+    <div class="form-group"><label class="form-label">Budget (Client's)</label><input class="input" id="lBudget" placeholder="e.g. 2000000" type="number"></div>
+    <div class="modal-section">Next Action</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Next Action</label>
+        <select class="input" id="lNextAction">
+          <option value="">— None —</option>
+          <option>Send unit listing</option>
+          <option>Schedule viewing</option>
+          <option>Send price comparison</option>
+          <option>Follow up call</option>
+          <option>Send availability</option>
+          <option>Prepare offer</option>
+          <option>Submit MOU</option>
+          <option>Awaiting client decision</option>
+          <option>Solve block — mortgage</option>
+          <option>Solve block — family</option>
+          <option>Solve block — liquidity</option>
+          <option>Light touch — WhatsApp</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Due Date</label><input class="input" type="date" id="lNextActionDate"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="input" id="lNotes" rows="2" placeholder="Property details, client notes..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn danger sm" id="deleteLeadBtn" onclick="deleteCurrentLead()" style="display:none;margin-right:auto;">Delete Lead</button>
+      <button class="btn sm" onclick="closeModal('addLeadModal')">Cancel</button>
+      <button class="btn primary sm" onclick="saveLead()">Save Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG MODAL -->
+<div class="modal-overlay" id="addLogModal">
+  <div class="modal">
+    <div class="modal-title" id="logModalTitle">Log Activity</div>
+    <input type="hidden" id="editLogId">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Lead</label><select class="input" id="logLead"></select></div>
+      <div class="form-group"><label class="form-label">Activity Type</label>
+        <select class="input" id="logType">
+          <option value="Call">Call</option><option value="WhatsApp">WhatsApp</option>
+          <option value="Meeting">Meeting</option><option value="Viewing">Viewing</option>
+          <option value="Follow-up">Follow-up</option><option value="Proposal Sent">Proposal Sent</option>
+          <option value="Note">Note</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">When</label>
+      <div class="period-grid">
+        <button type="button" class="period-btn" onclick="selectPeriod(this,'Morning')">🌅 Morning</button>
+        <button type="button" class="period-btn" onclick="selectPeriod(this,'Afternoon')">☀️ Afternoon</button>
+        <button type="button" class="period-btn" onclick="selectPeriod(this,'Late Afternoon')">🌤 Late Afternoon</button>
+        <button type="button" class="period-btn" onclick="selectPeriod(this,'Evening')">🌙 Evening</button>
+      </div>
+      <input type="hidden" id="selectedPeriod">
+    </div>
+    <div class="form-group"><label class="form-label">Date</label><input class="input" type="date" id="logDate" style="max-width:200px;"></div>
+
+    <!-- SIGNAL PICKER -->
+    <div class="form-group">
+      <div class="signal-question">How did they leave it?</div>
+      <input type="hidden" id="selectedSignal">
+      <input type="hidden" id="selectedMode">
+
+      <div class="signal-group">
+        <div class="signal-group-title"><span style="color:var(--synced);">🟢</span> <span style="color:var(--synced);">Synchronized — Moving Forward</span></div>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'asked_next_step','synced')">Asked about next step, MOU, or deposit process</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'requested_viewing','synced')">Requested viewing / asked to see it today or tomorrow</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'price_commitment','synced')">If we agree on price — how fast can we move?</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'gave_timeline','synced')">Gave specific timeline or committed to next step</button>
+      </div>
+
+      <div class="signal-group">
+        <div class="signal-group-title"><span style="color:var(--trans);">🟡</span> <span style="color:var(--trans);">Transitioning — Pulling Back</span></div>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'said_think','trans')">Said "let me think" or "I'll get back to you"</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'needs_discuss','trans')">Needs to discuss with wife / husband / family</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'comparing','trans')">Comparing with other options — no clear next step</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'cancelled_avoided','trans')">Cancelled or avoided a scheduled call or viewing</button>
+      </div>
+
+      <div class="signal-group">
+        <div class="signal-group-title"><span style="color:var(--async);">🔵</span> <span style="color:var(--async);">Asynchronous — Passive</span></div>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'replied_no_questions','async')">Replied but asked nothing back — "Okay noted" / "Thanks"</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'slow_reply','async')">Replied after long delay, short answer, no engagement</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'seen_no_reply','async')">Seen / delivered — no reply</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'no_answer','async')">No answer — call went unanswered</button>
+      </div>
+
+      <div class="signal-group">
+        <div class="signal-group-title"><span style="color:var(--blocked);">⚫</span> <span style="color:var(--blocked);">Blocked — External Constraint</span></div>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'waiting_mortgage','blocked')">Waiting for mortgage pre-approval</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'needs_sell_first','blocked')">Needs to sell current property first</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'watching_market','blocked')">Watching market / waiting for price movement</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'funds_tied','blocked')">Funds tied in another investment</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'family_not_agreed','blocked')">Family hasn't agreed yet — waiting for decision</button>
+      </div>
+
+      <div class="signal-group">
+        <div class="signal-group-title"><span style="color:var(--dead);">🔴</span> <span style="color:var(--dead);">Dead — No Traction</span></div>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'no_reply_multi','dead')">No reply after multiple attempts</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'unrealistic','dead')">Unrealistic expectations — unwilling to adjust</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'lost_deal','dead')">Confirmed bought elsewhere / no longer looking</button>
+        <button type="button" class="signal-btn" onclick="selectSignal(this,'just_browsing','dead')">Just browsing — no evolution over multiple contacts</button>
+      </div>
+
+      <!-- BLOCKED INTERVENTION -->
+      <div class="intervention-box" id="interventionBox">
+        <div class="intervention-title">⚡ Intervention — Don't Follow Up, Act</div>
+        <div class="intervention-text" id="interventionText"></div>
+      </div>
+    </div>
+
+    <div class="form-group"><label class="form-label">Extra Notes <span class="form-hint">(optional)</span></label><textarea class="input" id="logNotes" rows="2" placeholder="Anything extra..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn danger sm" id="deleteLogBtn" onclick="deleteCurrentLog()" style="display:none;margin-right:auto;">Delete</button>
+      <button class="btn sm" onclick="closeModal('addLogModal')">Cancel</button>
+      <button class="btn primary sm" onclick="saveLog()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal" style="width:620px;">
+    <div class="modal-title" id="historyModalTitle">Lead History</div>
+    <div id="historyContent"></div>
+    <div class="modal-actions"><button class="btn sm" onclick="closeModal('historyModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- SCORE MODAL -->
+<div class="modal-overlay" id="scoreModal">
+  <div class="modal score-modal">
+    <div class="modal-title" id="scoreModalTitle">Score Lead</div>
+    <input type="hidden" id="scoreLeadId">
+    <div class="score-criteria">
+      <div class="score-criteria-title">🧍 Buyer Seriousness <span style="color:var(--muted);font-size:12px;font-weight:600;">(max 30 pts)</span></div>
+      <div class="score-check-row" onclick="toggleCheck('sc1a')"><input type="checkbox" id="sc1a" onchange="calcScore()"><label class="score-check-label" for="sc1a">Budget confirmed</label><span class="score-check-pts">+10</span></div>
+      <div class="score-check-row" onclick="toggleCheck('sc1b')"><input type="checkbox" id="sc1b" onchange="calcScore()"><label class="score-check-label" for="sc1b">Clear timeline (≤ 30 days)</label><span class="score-check-pts">+10</span></div>
+      <div class="score-check-row" onclick="toggleCheck('sc1c')"><input type="checkbox" id="sc1c" onchange="calcScore()"><label class="score-check-label" for="sc1c">Decision maker (not "just checking")</label><span class="score-check-pts">+10</span></div>
+      <div class="distress-row"><div class="score-check-row" onclick="toggleCheck('sc1d')" style="padding:0;border:none;"><input type="checkbox" id="sc1d" onchange="calcScore()"><label class="score-check-label" style="color:var(--danger);font-weight:700;" for="sc1d">❌ Distress hunter → caps at 10</label></div></div>
+    </div>
+    <div class="score-criteria">
+      <div class="score-criteria-title">⏱️ Urgency <span style="color:var(--muted);font-size:12px;font-weight:600;">(max 25 pts)</span></div>
+      <div class="score-check-row" onclick="selectRadio('urgency','u25')"><input type="radio" name="urgency" id="u25" value="25" onchange="calcScore()"><label class="score-check-label" for="u25">Buying now / this month</label><span class="score-check-pts">+25</span></div>
+      <div class="score-check-row" onclick="selectRadio('urgency','u15')"><input type="radio" name="urgency" id="u15" value="15" onchange="calcScore()"><label class="score-check-label" for="u15">Soon — 1 to 3 months</label><span class="score-check-pts">+15</span></div>
+      <div class="score-check-row" onclick="selectRadio('urgency','u5')"><input type="radio" name="urgency" id="u5" value="5" onchange="calcScore()"><label class="score-check-label" for="u5">Just exploring</label><span class="score-check-pts">+5</span></div>
+      <div class="score-check-row" onclick="selectRadio('urgency','u0')"><input type="radio" name="urgency" id="u0" value="0" onchange="calcScore()" checked><label class="score-check-label" for="u0">No timeline</label><span class="score-check-pts">+0</span></div>
+    </div>
+    <div class="score-criteria">
+      <div class="score-criteria-title">🏠 Product Fit <span style="color:var(--muted);font-size:12px;font-weight:600;">(max 25 pts)</span></div>
+      <div class="score-check-row" onclick="selectRadio('fit','f25')"><input type="radio" name="fit" id="f25" value="25" onchange="calcScore()"><label class="score-check-label" for="f25">Liked a specific unit</label><span class="score-check-pts">+25</span></div>
+      <div class="score-check-row" onclick="selectRadio('fit','f15')"><input type="radio" name="fit" id="f15" value="15" onchange="calcScore()"><label class="score-check-label" for="f15">Interested but comparing</label><span class="score-check-pts">+15</span></div>
+      <div class="score-check-row" onclick="selectRadio('fit','f5')"><input type="radio" name="fit" id="f5" value="5" onchange="calcScore()" checked><label class="score-check-label" for="f5">General browsing</label><span class="score-check-pts">+5</span></div>
+    </div>
+    <div class="score-criteria">
+      <div class="score-criteria-title">📞 Engagement <span style="color:var(--muted);font-size:12px;font-weight:600;">(max 20 pts)</span></div>
+      <div class="score-check-row" onclick="selectRadio('engage','e20')"><input type="radio" name="engage" id="e20" value="20" onchange="calcScore()"><label class="score-check-label" for="e20">Responsive + answers calls</label><span class="score-check-pts">+20</span></div>
+      <div class="score-check-row" onclick="selectRadio('engage','e10')"><input type="radio" name="engage" id="e10" value="10" onchange="calcScore()"><label class="score-check-label" for="e10">Replies but slow</label><span class="score-check-pts">+10</span></div>
+      <div class="score-check-row" onclick="selectRadio('engage','e0')"><input type="radio" name="engage" id="e0" value="0" onchange="calcScore()" checked><label class="score-check-label" for="e0">Ghosting / No response</label><span class="score-check-pts">+0</span></div>
+    </div>
+    <div class="score-result">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Score</div>
+        <div class="score-big" id="scoreBigDisplay">5</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="tag" id="scoreBandTag"></div>
+        <div class="score-followup-txt" id="scoreFollowup"></div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:14px;"><label class="form-label">Notes (optional)</label><textarea class="input" id="scoreNotes" rows="2" placeholder="Context..."></textarea></div>
+    <div id="scoreHistorySection" style="display:none;">
+      <div class="modal-section">Score History</div>
+      <div id="scoreHistoryList"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn sm" onclick="closeModal('scoreModal')">Cancel</button>
+      <button class="btn primary sm" onclick="saveScore()">Save Score</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES=["New Lead","Contacted","Qualified","Proposal","Negotiation","Won","Lost"];
+const STAGE_PROB={"New Lead":2,"Contacted":5,"Qualified":20,"Proposal":40,"Negotiation":70,"Won":100,"Lost":0};
+
+// NEW MODE SYSTEM
+const MODES=['synced','trans','async','blocked','dead'];
+const MODE_LABELS={synced:'Synchronized',trans:'Transitioning',async:'Asynchronous',blocked:'Blocked',dead:'Dead'};
+const MODE_ICONS={synced:'🟢',trans:'🟡',async:'🔵',blocked:'⚫',dead:'🔴'};
+const MODE_CSS={synced:'mode-synced',trans:'mode-trans',async:'mode-async',blocked:'mode-blocked',dead:'mode-dead'};
+
+// Follow-up intervals by mode (days)
+const FOLLOWUP_DAYS={synced:1,trans:3,async:7,blocked:10,dead:30};
+
+// Strong signals → set immediately; weak → need 2 logs
+const STRONG_SIGNALS=['asked_next_step','requested_viewing','price_commitment','gave_timeline',
+  'waiting_mortgage','needs_sell_first','watching_market','funds_tied','family_not_agreed',
+  'no_reply_multi','unrealistic','lost_deal','just_browsing'];
+const WEAK_SIGNALS=['said_think','needs_discuss','comparing','cancelled_avoided',
+  'replied_no_questions','slow_reply','seen_no_reply','no_answer'];
+
+// Blocked interventions
+const BLOCKED_INTERVENTIONS={
+  waiting_mortgage:'Connect them with a trusted mortgage broker. Ask: "Do you have one already or shall I refer you to someone who can give you a same-week answer?" — Make the path clear.',
+  needs_sell_first:'Find out: listed yet? Which agent? Price they\'re asking. Can they buy now and sell later (bridging)? Don\'t wait — help solve the sell side.',
+  watching_market:'Re-anchor on value, not timing. Share a comparable that sold recently at or above this price. Ask: "What movement would make you move?" — Then anchor to that number.',
+  funds_tied:'Ask for the timeline of the tied investment. When does it unlock? Lock in a conditional interest now. Keep the unit available in their mind.',
+  family_not_agreed:'Offer to help the conversation — send a summary they can share with family. Ask: "Would a virtual tour or a second visit help them see what you\'re seeing?"'
+};
+
+// Score system
+const SCORE_BANDS=[
+  {min:75,label:"Strong Buy",cls:"mode-synced",follow:"Follow up daily"},
+  {min:50,label:"Probable",cls:"mode-trans",follow:"Follow up every 2–3 days"},
+  {min:25,label:"Exploratory",cls:"mode-async",follow:"Weekly touch"},
+  {min:0,label:"Weak",cls:"mode-dead",follow:"Park or drop"},
+];
+
+// Stage → mode weight for realistic pipeline
+const MODE_MULT={synced:1.0,trans:0.6,async:0.3,blocked:0.5,dead:0.0};
+
+const INTENT_LABELS={end_user_urgent:"End User — Urgent",end_user_future:"End User — Future",flip_handover:"Flip/Handover",hold_rent:"Hold to Rent",explorer:"Explorer"};
+
+// Old status → new mode mapping (for migration)
+const STATUS_TO_MODE={hot:'synced',warm:'trans',cold:'async',kmp:'async',dead:'dead'};
+
+let DB={leads:[],logs:[],nextLeadId:1,nextLogId:1};
+let SETTINGS={commRate:2};
+let activeFilter='all';
+let fuFilter='today';
+let logTimeFilter='week';
+let logResponseFilter='all';
+let sortCol='';
+let sortDir=1;
+
+function loadDB(){
+  try{const s=localStorage.getItem('crm_mosaad');if(s)DB=JSON.parse(s);else seedDemo();}catch(e){seedDemo();}
+  try{const s=localStorage.getItem('crm_settings_m');if(s)SETTINGS=JSON.parse(s);}catch(e){}
+  migrateModes();
+  document.getElementById('commRate').value=SETTINGS.commRate;
+}
+
+function migrateModes(){
+  // Migrate old status → new mode system if not yet done
+  let changed=false;
+  DB.leads.forEach(l=>{
+    if(!l.mode && l.status){
+      if(l.status==='hold'){
+        l.mode=(l.score&&l.score>=50)?'blocked':'async';
+      } else {
+        l.mode=STATUS_TO_MODE[l.status]||null;
+      }
+      changed=true;
+    }
+  });
+  if(changed)saveDB();
+}
+
+function saveDB(){localStorage.setItem('crm_mosaad',JSON.stringify(DB));}
+function saveSettings(){SETTINGS.commRate=parseFloat(document.getElementById('commRate').value)||2;localStorage.setItem('crm_settings_m',JSON.stringify(SETTINGS));}
+function today(){return new Date().toISOString().slice(0,10);}
+function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt.toISOString().slice(0,10);}
+function daysBetween(d1,d2){return Math.floor((new Date(d2)-new Date(d1))/(1000*60*60*24));}
+function weekStart(o=0){const n=new Date();const m=new Date(n);m.setDate(n.getDate()-((n.getDay()+6)%7)+(o*7));return m.toISOString().slice(0,10);}
+function formatDate(d){return new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'});}
+
+function getDefaultComm(l){if(l.comm&&l.comm!=='')return parseFloat(l.comm);if(l.clientType==='agent')return 1;return SETTINGS.commRate||2;}
+function getGrossComm(l){return(parseFloat(l.value)||0)*getDefaultComm(l)/100;}
+function getWeightedComm(l){
+  if(['Won','Lost'].includes(l.stage))return l.stage==='Won'?getGrossComm(l):0;
+  return getGrossComm(l)*((STAGE_PROB[l.stage]||0)/100)*(MODE_MULT[l.mode]??0.3);
+}
+function fmt(n){return'AED '+Math.round(n).toLocaleString();}
+function scoreBand(s){for(const b of SCORE_BANDS)if(s>=b.min)return b;return SCORE_BANDS[SCORE_BANDS.length-1];}
+
+// COMPUTE MODE from signal log history
+function computeMode(lead){
+  // Get all signal logs for this lead, most recent first
+  const sigLogs=DB.logs.filter(l=>l.leadId===lead.id&&l.signal).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  if(!sigLogs.length)return lead.mode||null; // keep migrated or null
+
+  const latest=sigLogs[0];
+  const latestMode=latest.signalMode;
+
+  // Strong signal → set immediately
+  if(STRONG_SIGNALS.includes(latest.signal)){
+    return latestMode;
+  }
+
+  // Weak signal → need 2 matching logs
+  if(WEAK_SIGNALS.includes(latest.signal)){
+    const second=sigLogs[1];
+    if(second&&second.signalMode===latestMode){
+      return latestMode;
+    }
+    // Only 1 weak log → show tentative (return null = unclassified, but keep migrated)
+    // If there was a previous confirmed mode from migration, preserve it tentatively
+    return lead.mode||null;
+  }
+
+  return lead.mode||null;
+}
+
+function getMode(lead){
+  return computeMode(lead);
+}
+
+function modeTag(lead){
+  const m=getMode(lead);
+  if(!m)return`<span class="mode-tag mode-unclassified">Unclassified</span>`;
+  return`<span class="mode-tag ${MODE_CSS[m]}">${MODE_ICONS[m]} ${MODE_LABELS[m]}</span>`;
+}
+
+function lastContactDate(lid){
+  const logs=DB.logs.filter(l=>l.leadId===lid).sort((a,b)=>b.date.localeCompare(a.date));
+  return logs.length?logs[0].date:null;
+}
+
+function isDueOn(lead,targetDate){
+  if(!lead.mode||lead.mode==='dead'||['Won','Lost'].includes(lead.stage))return false;
+  const interval=FOLLOWUP_DAYS[lead.mode]||3;
+  const last=lastContactDate(lead.id);
+  if(!last)return true;
+  return addDays(last,interval)<=targetDate;
+}
+
+function nextActionDisplay(l){
+  if(!l.nextAction)return'';
+  const overdue=l.nextActionDate&&l.nextActionDate<today();
+  return`<div class="lead-next-action${overdue?' overdue':''}">→ ${l.nextAction}${l.nextActionDate?' · '+formatDate(l.nextActionDate):''}</div>`;
+}
+
+function hasPendingSignal(lead){
+  // Lead has at least 1 weak signal log but not yet 2 matching
+  const sigLogs=DB.logs.filter(l=>l.leadId===lead.id&&l.signal).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  if(!sigLogs.length)return false;
+  const latest=sigLogs[0];
+  if(!WEAK_SIGNALS.includes(latest.signal))return false;
+  const second=sigLogs[1];
+  return!(second&&second.signalMode===latest.signalMode);
+}
+
+function seedDemo(){
+  DB.leads=[
+    {id:1,name:"Ahmed Al Mansoori",phone:"971501234567",phone2:"",stage:"Proposal",mode:"synced",value:"2500000",comm:"",source:"Referral",clientType:"end_user",intentType:"end_user_urgent",propertyType:"ready",payment:"cash",project:"Yas Acres",budget:"3000000",notes:"3BR Yas Island",createdAt:today(),score:80,scoreHistory:[],nextAction:"Prepare offer",nextActionDate:today()},
+    {id:2,name:"Sara Khalid",phone:"971509876543",phone2:"",stage:"Contacted",mode:"trans",value:"1800000",comm:"",source:"Property Finder",clientType:"investor",intentType:"flip_handover",propertyType:"off_plan",payment:"",project:"Reem Hills",budget:"2000000",notes:"2BR Reem Island",createdAt:today(),score:null,scoreHistory:[],nextAction:"Re-anchor on value",nextActionDate:""},
+    {id:3,name:"Rami Nasser",phone:"971551112233",phone2:"",stage:"New Lead",mode:null,value:"",comm:"",source:"Instagram",clientType:"end_user",intentType:"",propertyType:"ready",payment:"",project:"",budget:"",notes:"Referral from Ahmed",createdAt:today(),score:null,scoreHistory:[],nextAction:"",nextActionDate:""},
+  ];
+  DB.logs=[
+    {id:1,leadId:1,type:"Call",period:"Morning",signal:"asked_next_step",signalMode:"synced",notes:"Discussed pricing and MOU.",date:today()},
+    {id:2,leadId:2,type:"WhatsApp",period:"Afternoon",signal:"said_think",signalMode:"trans",notes:"Sent brochure.",date:today()},
+  ];
+  DB.nextLeadId=4;DB.nextLogId=3;saveDB();
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',['dashboard','pipeline','leads','daily','command'][i]===name);});
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(name==='dashboard')renderDashboard();
+  if(name==='pipeline')renderPipeline();
+  if(name==='leads')renderLeadsList();
+  if(name==='daily')renderDaily();
+  if(name==='report')renderReport();
+}
+
+function renderDashboard(){
+  const todayStr=today();
+  const active=DB.leads.filter(l=>!['Won','Lost'].includes(l.stage));
+  const won=DB.leads.filter(l=>l.stage==='Won');
+  const todayCount=DB.logs.filter(l=>l.date===todayStr).length;
+
+  // Mode breakdown
+  const modeCounts={};const modeValues={};
+  MODES.forEach(m=>{modeCounts[m]=0;modeValues[m]=0;});
+  active.forEach(l=>{
+    const m=getMode(l)||'unclassified';
+    if(MODES.includes(m)){modeCounts[m]++;modeValues[m]+=(parseFloat(l.value)||0);}
+  });
+
+  // Realistic pipeline = Synced + Blocked only
+  const realisticLeads=active.filter(l=>{const m=getMode(l);return m==='synced'||m==='blocked';});
+  const realisticValue=realisticLeads.reduce((s,l)=>s+(parseFloat(l.value)||0),0);
+  const realisticComm=realisticLeads.reduce((s,l)=>s+getGrossComm(l),0);
+  const totalValue=active.reduce((s,l)=>s+(parseFloat(l.value)||0),0);
+  const totalComm=active.reduce((s,l)=>s+getGrossComm(l),0);
+  const wonComm=won.reduce((s,l)=>s+getGrossComm(l),0);
+  const totalWeighted=DB.leads.filter(l=>l.stage!=='Lost').reduce((s,l)=>s+getWeightedComm(l),0);
+
+  // Pipeline reality banner
+  document.getElementById('pipelineReality').innerHTML=`
+    <div class="reality-card real">
+      <div class="reality-label">🎯 Realistic Pipeline <span style="font-weight:500;font-size:10px;">(Synchronized + Blocked)</span></div>
+      <div class="reality-value">${fmt(realisticValue)}</div>
+      <div class="reality-sub">Est. Commission: ${fmt(realisticComm)} · ${realisticLeads.length} leads</div>
+    </div>
+    <div class="reality-card total">
+      <div class="reality-label">Total Pipeline <span style="font-weight:500;font-size:10px;">(all active)</span></div>
+      <div class="reality-value">${fmt(totalValue)}</div>
+      <div class="reality-sub">Est. Commission: ${fmt(totalComm)} · ${active.length} leads</div>
+    </div>`;
+
+  // Mode strip
+  const modeStripItems=[
+    {key:'synced',icon:'🟢',label:'Synchronized',cls:'ms-synced'},
+    {key:'trans',icon:'🟡',label:'Transitioning',cls:'ms-trans'},
+    {key:'async',icon:'🔵',label:'Async',cls:'ms-async'},
+    {key:'blocked',icon:'⚫',label:'Blocked',cls:'ms-blocked'},
+    {key:'dead',icon:'🔴',label:'Dead',cls:'ms-dead'},
+  ];
+  document.getElementById('modeStrip').innerHTML=modeStripItems.map(m=>`
+    <div class="mode-strip-item ${m.cls}" onclick="switchTab('leads');setFilter('${m.key}')">
+      <div class="mode-strip-icon">${m.icon}</div>
+      <div class="mode-strip-count">${modeCounts[m.key]||0}</div>
+      <div class="mode-strip-label">${m.label}</div>
+      <div class="mode-strip-value">${modeValues[m.key]?fmt(modeValues[m.key]):''}</div>
+    </div>`).join('');
+
+  // Stats row
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value">${DB.leads.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Won Commission</div><div class="stat-value green" style="font-size:16px;margin-top:4px;">${fmt(wonComm)}</div></div>
+    <div class="stat-card"><div class="stat-label">Weighted Commission</div><div class="stat-value blue" style="font-size:16px;margin-top:4px;">${fmt(totalWeighted)}</div><div class="stat-sub">mode × stage</div></div>
+    <div class="stat-card link" onclick="switchTab('daily')"><div class="stat-label">Today's Logs</div><div class="stat-value blue">${todayCount}</div><div class="stat-sub">↗ View log</div></div>
+  `;
+
+  // TODAY'S FOCUS
+  const syncedLeads=active.filter(l=>getMode(l)==='synced');
+  const transLeads=active.filter(l=>getMode(l)==='trans');
+  const blockedLeads=active.filter(l=>getMode(l)==='blocked');
+
+  document.getElementById('focusSynced').innerHTML=syncedLeads.length?`
+    <div class="focus-group-title"><span>🟢</span> Push Now <span style="color:var(--muted);font-weight:500;font-size:12px;">${syncedLeads.length} synchronized</span></div>
+    ${syncedLeads.map(l=>`<div class="focus-card synced">
+      <div class="focus-info">
+        <div class="focus-name">${l.name} ${modeTag(l)}</div>
+        <div class="focus-meta">${l.stage}${l.project?' · '+l.project:''}${l.intentType?' · '+intentLabel(l.intentType):''}</div>
+        ${l.nextAction?`<div class="focus-next">→ ${l.nextAction}${l.nextActionDate?' · '+formatDate(l.nextActionDate):''}</div>`:''}
+        <span class="focus-action-hint hint-synced">Prioritize · Push decision · Stay tight</span>
+      </div>
+      ${l.phone?`<a class="wa-btn" href="https://wa.me/${l.phone}" target="_blank">WA</a>`:''}
+      <button class="btn xs primary" onclick="openAddLogForLead(${l.id})">Log</button>
+      <button class="edit-btn" onclick="openEditLead(${l.id})">Edit</button>
+    </div>`).join('')}`:'';
+
+  document.getElementById('focusTrans').innerHTML=transLeads.length?`
+    <div class="focus-group-title"><span>🟡</span> Re-anchor <span style="color:var(--muted);font-weight:500;font-size:12px;">${transLeads.length} transitioning</span></div>
+    ${transLeads.map(l=>`<div class="focus-card trans">
+      <div class="focus-info">
+        <div class="focus-name">${l.name} ${modeTag(l)}</div>
+        <div class="focus-meta">${l.stage}${l.project?' · '+l.project:''}</div>
+        ${l.nextAction?`<div class="focus-next">→ ${l.nextAction}</div>`:''}
+        <span class="focus-action-hint hint-trans">Re-anchor · Re-engage · Don't let it drift</span>
+      </div>
+      ${l.phone?`<a class="wa-btn" href="https://wa.me/${l.phone}" target="_blank">WA</a>`:''}
+      <button class="btn xs primary" onclick="openAddLogForLead(${l.id})">Log</button>
+      <button class="edit-btn" onclick="openEditLead(${l.id})">Edit</button>
+    </div>`).join('')}`:'';
+
+  document.getElementById('focusBlocked').innerHTML=blockedLeads.length?`
+    <div class="focus-group-title"><span>⚫</span> Solve the Block <span style="color:var(--muted);font-weight:500;font-size:12px;">${blockedLeads.length} blocked</span></div>
+    ${blockedLeads.map(l=>{
+      const lastSig=DB.logs.filter(x=>x.leadId===l.id&&x.signal&&x.signalMode==='blocked').sort((a,b)=>b.date.localeCompare(a.date))[0];
+      const hint=lastSig&&BLOCKED_INTERVENTIONS[lastSig.signal]?BLOCKED_INTERVENTIONS[lastSig.signal].split('.')[0]+'.':'Intervene — don\'t just follow up.';
+      return`<div class="focus-card blocked">
+        <div class="focus-info">
+          <div class="focus-name">${l.name} ${modeTag(l)}</div>
+          <div class="focus-meta">${l.stage}${l.project?' · '+l.project:''}</div>
+          <div class="focus-next" style="color:var(--blocked);">⚡ ${hint}</div>
+        </div>
+        ${l.phone?`<a class="wa-btn" href="https://wa.me/${l.phone}" target="_blank">WA</a>`:''}
+        <button class="btn xs primary" onclick="openAddLogForLead(${l.id})">Log</button>
+        <button class="edit-btn" onclick="openEditLead(${l.id})">Edit</button>
+      </div>`;
+    }).join('')}`:'';
+
+  // Recent leads
+  const recent=[...DB.leads].reverse().slice(0,5);
+  document.getElementById('recentLeads').innerHTML=recent.length?recent.map(l=>`
+    <div class="log-entry">
+      <div class="log-body" style="flex:1;">
+        <div class="log-title">${l.name} ${modeTag(l)}${hasPendingSignal(l)?'<span class="pending-badge" style="margin-left:6px;">signal pending</span>':''}</div>
+        <div class="log-detail">${l.stage} · ${clientTypeLabel(l.clientType)}${l.project?' · '+l.project:''}${l.intentType?' · '+intentLabel(l.intentType):''}</div>
+        ${l.value?`<div class="lead-chips" style="margin-top:5px;"><span class="chip chip-gold">Comm: ${fmt(getGrossComm(l))}</span>${scoreChip(l)}</div>`:''}
+        ${nextActionDisplay(l)}
+      </div>
+      ${l.phone?`<a class="wa-btn" href="https://wa.me/${l.phone}" target="_blank">WA</a>`:''}
+      <button class="hist-btn" onclick="openHistory(${l.id})">History</button>
+      <button class="score-btn" onclick="openScore(${l.id})">Score</button>
+      <button class="edit-btn" onclick="openEditLead(${l.id})">Edit</button>
+    </div>`).join(''):'<p style="color:var(--muted);font-size:14px;">No leads yet.</p>';
+}
+
+function renderPipeline(){
+  document.getElementById('pipelineView').innerHTML=STAGES.map(stage=>{
+    const leads=DB.leads.filter(l=>l.stage===stage);
+    const idx=STAGES.indexOf(stage);
+    return`<div class="stage-col"><div class="stage-header"><span class="stage-name">${stage}</span><span class="stage-pill">${leads.length} · ${STAGE_PROB[stage]}%</span></div>${leads.length?leads.map(l=>{
+      const prev=idx>0?STAGES[idx-1]:null;const next=idx<STAGES.length-1?STAGES[idx+1]:null;
+      const naOverdue=l.nextActionDate&&l.nextActionDate<today();
+      const m=getMode(l);
+      return`<div class="lead-card" style="${naOverdue?'border-color:var(--danger);':''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;">
+          <div class="lead-name">${l.name}</div>${modeTag(l)}
+        </div>
+        <div class="lead-meta">${clientTypeLabel(l.clientType)}${l.intentType?' · '+intentLabel(l.intentType):''}${l.project?' · '+l.project:''}</div>
+        <div class="lead-chips">
+          ${l.value?`<span class="chip chip-gold">${fmt(getGrossComm(l))}</span>`:''}
+          ${scoreChip(l)}
+          ${l.phone2?`<span style="font-size:10px;color:var(--muted);font-weight:600;">📞 ${l.phone2}</span>`:''}
+        </div>
+        ${nextActionDisplay(l)}
+        <div class="lead-btns">
+          ${l.phone?`<a class="wa-btn" href="https://wa.me/${l.phone}" target="_blank">WA</a>`:''}
+          ${prev?`<button class="move-btn" onclick="moveStage(${l.id},'${prev}')">← Back</button>`:''}
+          ${next?`<button class="move-btn" onclick="moveStage(${l.id},'${next}')">Next →</button>`:''}
+          <button class="hist-btn" onclick="openHistory(${l.id})">History</button>
+          <button class="score-btn" onclick="openScore(${l.id})">Score</button>
+          <button class="edit-btn" onclick="openEditLead(${l.id})">Edit</button>
+        </div>
+      </div>`;
+    }).join(''):`<div class="no-leads">Empty</div>`}</div>`;
+  }).join('');
+}
+
+function moveStage(id,newStage){const l=DB.leads.find(x=>x.id===id);if(l){l.stage=newStage;saveDB();renderPipeline();renderDashboard();}}
+
+function buildFilterBar(){
+  const filters=[
+    {key:'all',label:'All'},
+    {key:'synced',label:'🟢 Synchronized'},
+    {key:'trans',label:'🟡 Transitioning'},
+    {key:'async',label:'🔵 Async'},
+    {key:'blocked',label:'⚫ Blocked'},
+    {key:'dead',label:'🔴 Dead'},
+    {key:'unclassified',label:'Unclassified'},
+    {key:'unscored',label:'Unscored'},
+  ];
+  document.getElementById('filterBar').innerHTML=filters.map(f=>`<button class="filter-btn${activeFilter===f.key?' active':''}" onclick="setFilter('${f.key}')">${f.label}</button>`).join('');
+}
+function setFilter(k){activeFilter=k;renderLeadsList();}
+function filterLeads(f){
+  if(f==='all')return DB.leads;
+  if(f==='unscored')return DB.leads.filter(l=>l.score==null);
+  if(f==='unclassified')return DB.leads.filter(l=>!getMode(l));
+  if(MODES.includes(f))return DB.leads.filter(l=>getMode(l)===f);
+  return DB.leads;
+}
+
+function sortLeads(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}renderLeadsList();}
+
+function renderLeadsList(){
+  buildFilterBar();
+  const q=(document.getElementById('leadSearch')?.value||'').toLowerCase();
+  let filtered=filterLeads(activeFilter).filter(l=>l.name.toLowerCase().includes(q)||(l.project||'').toLowerCase().includes(q));
+  if(sortCol){
+    filtered.sort((a,b)=>{
+      let av,bv;
+      if(sortCol==='name'){av=a.name;bv=b.name;}
+      else if(sortCol==='intent'){av=intentLabel(a.intentType);bv=intentLabel(b.intentType);}
+      else if(sortCol==='stage'){av=STAGES.indexOf(a.stage);bv=STAGES.indexOf(b.stage);}
+      else if(sortCol==='mode'){av=MODES.indexOf(getMode(a)||'');bv=MODES.indexOf(getMode(b)||'');}
+      else if(sortCol==='score'){av=a.score??-1;bv=b.score??-1;}
+      else if(sortCol==='value'){av=parseFloat(a.value)||0;bv=parseFloat(b.value)||0;}
+      else if(sortCol==='comm'){av=getGrossComm(a);bv=getGrossComm(b);}
+      else if(sortCol==='next'){av=a.nextActionDate||'9999';bv=b.nextActionDate||'9999';}
+      else{av='';bv='';}
+      if(typeof av==='number')return(av-bv)*sortDir;
+      return av.toString().localeCompare(bv.toString())*sortDir;
+    });
+  }
+  const arr=col=>sortCol===col?(sortDir===1?' ↑':' ↓'):'';
+  const th=(col,label)=>`<th class="${sortCol===col?'sorted':''}" onclick="sortLeads('${col}')">${label}${arr(col)}</th>`;
+  document.getElementById('leadsHead').innerHTML=`<tr>${th('name','Name')}${th('intent','Intent')}${th('stage','Stage')}${th('mode','Mode')}${th('score','Score')}${th('value','Value')}${th('comm','Commission')}${th('next','Next Action')}<th>WA</th><th></th></tr>`;
+  document.getElementById('leadsBody').innerHTML=filtered.length?filtered.map(l=>`<tr>
+    <td><strong>${l.name}</strong><br><span style="font-size:11px;color:var(--muted);">${l.project||''}</span></td>
+    <td><span class="intent-tag">${intentLabel(l.intentType)}</span></td>
+    <td>${l.stage}</td>
+    <td>${modeTag(l)}${hasPendingSignal(l)?'<br><span class="pending-badge">pending</span>':''}</td>
+    <td>${scoreChip(l)}</td>
+    <td>${l.value?fmt(parseFloat(l.value)):'—'}</td>
+    <td>${l.value?fmt(getGrossComm(l)):'—'}</td>
+    <td style="font-size:12px;color:var(--accent2);font-weight:600;">${l.nextAction||'—'}${l.nextActionDate?'<br><span style="color:var(--muted);font-size:11px;">'+formatDate(l.nextActionDate)+'</span>':''}</td>
+    <td>${l.phone?`<a class="wa-btn" href="https://wa.me/${l.phone}" target="_blank">WA</a>`:'—'}</td>
+    <td style="display:flex;gap:5px;"><button class="hist-btn xs" onclick="openHistory(${l.id})">History</button><button class="score-btn xs" onclick="openScore(${l.id})">Score</button><button class="edit-btn" onclick="openEditLead(${l.id})">Edit</button></td>
+  </tr>`).join(''):`<tr><td colspan="10" style="color:var(--muted);text-align:center;padding:24px;font-weight:600;">No leads found.</td></tr>`;
+}
+
+function setFuFilter(f){
+  fuFilter=f;
+  document.querySelectorAll('.fu-filter').forEach(b=>b.classList.remove('active'));
+  document.getElementById('fu-'+f).classList.add('active');
+  renderFollowups();
+}
+
+function renderFollowups(){
+  const todayStr=today();
+  const yesterdayStr=addDays(todayStr,-1);
+  const tomorrowStr=addDays(todayStr,1);
+  let leads=[];
+
+  if(fuFilter==='blocked'){
+    leads=DB.leads.filter(l=>getMode(l)==='blocked'&&!['Won','Lost'].includes(l.stage));
+  }else if(fuFilter==='nevercontacted'){
+    const cids=new Set(DB.logs.map(l=>l.leadId).filter(Boolean));
+    leads=DB.leads.filter(l=>!cids.has(l.id)&&!['Won','Lost'].includes(l.stage)&&getMode(l)!=='dead');
+  }else if(fuFilter==='noanswer'){
+    const naids=new Set(DB.logs.filter(l=>l.signal&&(l.signal==='no_answer'||l.signal==='seen_no_reply'||l.signal==='no_reply_multi')).map(l=>l.leadId).filter(Boolean));
+    leads=DB.leads.filter(l=>naids.has(l.id)&&!['Won','Lost'].includes(l.stage));
+  }else if(fuFilter==='yesterday'){
+    leads=DB.leads.filter(l=>isDueOn(l,yesterdayStr)&&!DB.logs.some(log=>log.leadId===l.id&&log.date===yesterdayStr));
+  }else if(fuFilter==='today'){
+    leads=DB.leads.filter(l=>isDueOn(l,todayStr));
+  }else if(fuFilter==='tomorrow'){
+    leads=DB.leads.filter(l=>isDueOn(l,tomorrowStr)&&!['Won','Lost'].includes(l.stage)&&getMode(l)!=='dead');
+  }else if(fuFilter==='week'){
+    const days=[];for(let i=0;i<7;i++)days.push(addDays(weekStart(),i));
+    const grouped=days.map(d=>({date:d,leads:DB.leads.filter(l=>isDueOn(l,d)&&!['Won','Lost'].includes(l.stage)&&getMode(l)!=='dead')})).filter(g=>g.leads.length>0);
+    const el=document.getElementById('followupList');
+    if(!grouped.length){el.innerHTML='<div class="no-followups">✓ No follow-ups this week.</div>';return;}
+    el.innerHTML=grouped.map(g=>`<div class="day-group"><div class="day-label" style="padding:10px 18px;margin:0;font-size:12px;background:var(--surface2);border-bottom:1px solid var(--border);">${formatDate(g.date)}${g.date===todayStr?' — Today':g.date===yesterdayStr?' — Yesterday':g.date===tomorrowStr?' — Tomorrow':''} <span style="margin-left:8px;color:var(--muted);">${g.leads.length} due</span></div>${g.leads.map(l=>followupCard(l,g.date)).join('')}</div>`).join('');
+    return;
+  }
+
+  const el=document.getElementById('followupList');
+  if(!leads.length){el.innerHTML='<div class="no-followups">✓ All clear.</div>';return;}
+  el.innerHTML=leads.map(l=>followupCard(l,todayStr)).join('');
+}
+
+function followupCard(l,targetDate){
+  const last=lastContactDate(l.id);
+  const interval=FOLLOWUP_DAYS[getMode(l)||'async']||3;
+  const days=last?daysBetween(last,targetDate):null;
+  let dueClass='due-today',dueText='Due';
+  if(days===null){dueClass='due-overdue';dueText='Never contacted';}
+  else if(days>interval){dueClass='due-overdue';dueText=`${days}d ago`;}
+  else dueText=`Last: ${days===0?'today':`${days}d ago`}`;
+  return`<div class="followup-card">
+    <div class="followup-info">
+      <div class="followup-name">${l.name} ${modeTag(l)}</div>
+      <div class="followup-meta">${l.stage}${l.project?' · '+l.project:''} · ${clientTypeLabel(l.clientType)}</div>
+      ${l.nextAction?`<div class="followup-next">→ ${l.nextAction}</div>`:''}
+    </div>
+    <span class="followup-due ${dueClass}">${dueText}</span>
+    ${l.phone?`<a class="wa-btn" href="https://wa.me/${l.phone}" target="_blank">WA</a>`:''}
+    <button class="btn xs primary" onclick="openAddLogForLead(${l.id})">Log</button>
+  </div>`;
+}
+
+function renderLogFilters(){
+  const tf=[{k:'today',l:'Today'},{k:'week',l:'This Week'},{k:'lastweek',l:'Last Week'},{k:'month',l:'This Month'},{k:'all',l:'All Time'}];
+  const rf=[{k:'all',l:'All'},{k:'synced',l:'Synced Signals'},{k:'noanswer',l:'No Answer'},{k:'positive',l:'Positive'}];
+  document.getElementById('logFilterBar').innerHTML=
+    tf.map(f=>`<button class="filter-btn${logTimeFilter===f.k?' active':''}" onclick="setLogTimeFilter('${f.k}')">${f.l}</button>`).join('')+
+    '<span style="width:1px;background:var(--border);margin:0 6px;display:inline-block;height:22px;vertical-align:middle;"></span>'+
+    rf.map(f=>`<button class="filter-btn${logResponseFilter===f.k?' active':''}" onclick="setLogRespFilter('${f.k}')">${f.l}</button>`).join('');
+}
+function setLogTimeFilter(k){logTimeFilter=k;renderLogList();}
+function setLogRespFilter(k){logResponseFilter=k;renderLogList();}
+
+function getFilteredLogs(){
+  const todayStr=today();let logs=[...DB.logs];
+  if(logTimeFilter==='today')logs=logs.filter(l=>l.date===todayStr);
+  else if(logTimeFilter==='week'){const ws=weekStart();const we=addDays(ws,6);logs=logs.filter(l=>l.date>=ws&&l.date<=we);}
+  else if(logTimeFilter==='lastweek'){const ws=weekStart(-1);const we=addDays(ws,6);logs=logs.filter(l=>l.date>=ws&&l.date<=we);}
+  else if(logTimeFilter==='month'){const m=todayStr.slice(0,7);logs=logs.filter(l=>l.date.startsWith(m));}
+  if(logResponseFilter==='noanswer')logs=logs.filter(l=>l.signal&&(l.signal==='no_answer'||l.signal==='no_reply_multi'));
+  else if(logResponseFilter==='synced')logs=logs.filter(l=>l.signalMode==='synced');
+  else if(logResponseFilter==='positive')logs=logs.filter(l=>l.signalMode==='synced'||l.signalMode==='blocked');
+  return logs.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+}
+
+function renderLogList(){
+  renderLogFilters();
+  const logs=getFilteredLogs();
+  const grouped={};logs.forEach(l=>{if(!grouped[l.date])grouped[l.date]=[];grouped[l.date].push(l);});
+  const dates=Object.keys(grouped).sort().reverse();
+  if(!dates.length){document.getElementById('logList').innerHTML='<p style="color:var(--muted);font-size:14px;font-weight:500;">No activity found.</p>';return;}
+  document.getElementById('logList').innerHTML=dates.map(date=>{
+    const label=date===today()?'Today':formatDate(date);
+    return`<div class="day-group"><div class="day-label">${label}</div>${grouped[date].map(l=>{const lead=DB.leads.find(x=>x.id===l.leadId);
+      const signalLabel=l.signal?` — ${SIGNAL_LABELS[l.signal]||l.signal}`:'';
+      const modeLabel=l.signalMode?` <span class="mode-tag ${MODE_CSS[l.signalMode]||''}" style="font-size:9px;">${MODE_ICONS[l.signalMode]||''} ${MODE_LABELS[l.signalMode]||''}</span>`:'';
+      return`<div class="log-entry"><div class="log-time">${l.period||''}</div><div class="log-body" style="flex:1;"><div class="log-title">${l.type}${lead?` — ${lead.name}`:''}${modeLabel}</div><div class="log-detail">${signalLabel}${l.notes?' · '+l.notes:''}</div></div>${lead&&lead.phone?`<a class="wa-btn" href="https://wa.me/${lead.phone}" target="_blank">WA</a>`:''}<button class="edit-btn" onclick="openEditLog(${l.id})">Edit</button></div>`;
+    }).join('')}</div>`;
+  }).join('');
+}
+
+const SIGNAL_LABELS={
+  asked_next_step:'Asked about next step / MOU / deposit',
+  requested_viewing:'Requested viewing urgently',
+  price_commitment:'Committed to timeline on price agreement',
+  gave_timeline:'Gave specific timeline',
+  said_think:'Said "let me think / get back to you"',
+  needs_discuss:'Needs family / partner discussion',
+  comparing:'Comparing — no next step',
+  cancelled_avoided:'Cancelled or avoided call / viewing',
+  replied_no_questions:'Replied with no questions back',
+  slow_reply:'Slow reply, short, no engagement',
+  seen_no_reply:'Seen / delivered — no reply',
+  no_answer:'No answer',
+  waiting_mortgage:'Waiting for mortgage pre-approval',
+  needs_sell_first:'Needs to sell current property first',
+  watching_market:'Watching market / waiting for price move',
+  funds_tied:'Funds tied in another investment',
+  family_not_agreed:'Family hasn\'t agreed yet',
+  no_reply_multi:'No reply after multiple attempts',
+  unrealistic:'Unrealistic expectations, won\'t adjust',
+  lost_deal:'Confirmed bought elsewhere',
+  just_browsing:'Just browsing — no evolution',
+};
+
+function renderDaily(){
+  document.getElementById('logDateLabel').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  renderFollowups();renderLogList();
+}
+
+function openHistory(id){
+  const lead=DB.leads.find(l=>l.id===id);if(!lead)return;
+  document.getElementById('historyModalTitle').textContent='History — '+lead.name;
+  const logs=DB.logs.filter(l=>l.leadId===id).sort((a,b)=>b.date.localeCompare(a.date));
+  const scores=lead.scoreHistory||[];
+  const allEvents=[...logs.map(l=>({type:'log',date:l.date,period:l.period,actType:l.type,signal:l.signal,signalMode:l.signalMode,notes:l.notes})),...scores.map(s=>({type:'score',date:s.date,total:s.total,band:s.band,notes:s.notes}))].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('historyContent').innerHTML=allEvents.length?allEvents.map(e=>{
+    if(e.type==='log'){
+      const mLabel=e.signalMode?`<span class="mode-tag ${MODE_CSS[e.signalMode]||''}" style="font-size:9px;">${MODE_ICONS[e.signalMode]||''} ${MODE_LABELS[e.signalMode]||''}</span>`:'';
+      return`<div class="history-entry"><div class="history-date">${formatDate(e.date)}${e.period?' · '+e.period:''}</div><div class="history-type">${e.actType} ${mLabel}</div><div class="history-outcome">${e.signal?SIGNAL_LABELS[e.signal]||e.signal:''}</div>${e.notes?`<div class="history-notes">${e.notes}</div>`:''}</div>`;
+    }
+    const b=scoreBand(e.total);
+    return`<div class="history-entry"><div class="history-date">${formatDate(e.date)} · Score</div><div class="history-type">Lead Scored</div><div class="history-outcome"><span class="${b.cls}" style="font-weight:700;">${e.total}/100 — ${e.band}</span></div>${e.notes?`<div class="history-notes">${e.notes}</div>`:''}</div>`;
+  }).join(''):'<p style="color:var(--muted);font-size:14px;">No activity yet.</p>';
+  openModal('historyModal');
+}
+
+function renderReport(){
+  document.getElementById('reportDate').textContent='— '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  const leads=DB.leads;const active=leads.filter(l=>!['Won','Lost'].includes(l.stage));const won=leads.filter(l=>l.stage==='Won');
+  const realisticLeads=active.filter(l=>{const m=getMode(l);return m==='synced'||m==='blocked';});
+  const totalPipeline=active.reduce((s,l)=>s+(parseFloat(l.value)||0),0);
+  const totalGross=active.reduce((s,l)=>s+getGrossComm(l),0);
+  const realisticPipeline=realisticLeads.reduce((s,l)=>s+(parseFloat(l.value)||0),0);
+  const realisticGross=realisticLeads.reduce((s,l)=>s+getGrossComm(l),0);
+  const totalWon=won.reduce((s,l)=>s+getGrossComm(l),0);
+  const convRate=leads.length?Math.round((won.length/leads.length)*100):0;
+  const byMode={};MODES.forEach(m=>{const ml=leads.filter(l=>getMode(l)===m);byMode[m]={count:ml.length,value:ml.reduce((x,l)=>x+(parseFloat(l.value)||0),0),comm:ml.reduce((x,l)=>x+getGrossComm(l),0)};});
+  const syncedLeads=active.filter(l=>getMode(l)==='synced');
+  document.getElementById('reportContent').innerHTML=`<div style="font-family:'Inter',sans-serif;max-width:900px;color:#1e2a38;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1e2a38;padding-bottom:18px;margin-bottom:26px;">
+      <div><div style="font-size:30px;font-weight:900;letter-spacing:-0.5px;">Pipeline Report</div>
+      <div style="font-size:13px;color:#8a8a7a;font-weight:600;margin-top:5px;">Mosaad's CRM · Abu Dhabi Secondary Market · ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
+      <div style="text-align:right;"><div style="font-size:11px;font-weight:700;color:#8a8a7a;text-transform:uppercase;letter-spacing:1px;">Commission Rate</div><div style="font-size:24px;font-weight:900;color:#b8860b;">${SETTINGS.commRate}%</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div style="background:#f0faf4;border:2px solid #a0d8b8;border-radius:10px;padding:16px 20px;"><div style="font-size:10px;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🎯 Realistic Pipeline</div><div style="font-size:22px;font-weight:900;color:#2e7d32;">${fmt(realisticPipeline)}</div><div style="font-size:11px;color:#4a8a50;font-weight:600;margin-top:3px;">Comm: ${fmt(realisticGross)} · ${realisticLeads.length} leads (Synced + Blocked)</div></div>
+      <div style="background:#f9f7f3;border:2px solid #e0dbd2;border-radius:10px;padding:16px 20px;"><div style="font-size:10px;font-weight:700;color:#8a8a7a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Pipeline</div><div style="font-size:22px;font-weight:900;color:#8a8a7a;">${fmt(totalPipeline)}</div><div style="font-size:11px;color:#aaa;font-weight:600;margin-top:3px;">Comm: ${fmt(totalGross)} · ${active.length} active leads</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">${[['Total Leads',leads.length,'#1e2a38'],['Active',active.length,'#2e5d8e'],['Won',won.length,'#2e7d32'],['Conversion',convRate+'%','#b8860b']].map(([l,v,c])=>`<div style="background:#f9f7f3;border:2px solid #e0dbd2;border-radius:10px;padding:14px 16px;"><div style="font-size:10px;font-weight:700;color:#8a8a7a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">${l}</div><div style="font-size:26px;font-weight:900;color:${c};">${v}</div></div>`).join('')}</div>
+    <div style="margin-bottom:28px;"><div style="font-size:17px;font-weight:900;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #e0dbd2;">Pipeline by Engagement Mode</div>
+    <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f4f1ec;">${['Mode','Leads','Pipeline Value','Gross Commission','% of Total'].map(h=>`<th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:#8a8a7a;border-bottom:2px solid #e0dbd2;">${h}</th>`).join('')}</tr></thead>
+    <tbody>${MODES.map((m,i)=>{const d=byMode[m]||{count:0,value:0,comm:0};const pct=leads.length?Math.round((d.count/leads.length)*100):0;const colors={synced:'#2e7d32',trans:'#d4890a',async:'#2e5d8e',blocked:'#6b3fa0',dead:'#888'};return`<tr style="background:${i%2===0?'#fff':'#f9f7f3'};"><td style="padding:10px 14px;">${MODE_ICONS[m]} <strong style="color:${colors[m]};">${MODE_LABELS[m]}</strong></td><td style="padding:10px 14px;font-size:14px;font-weight:700;">${d.count}</td><td style="padding:10px 14px;font-size:14px;font-weight:600;">${d.value?fmt(d.value):'—'}</td><td style="padding:10px 14px;font-size:14px;font-weight:700;color:#b8860b;">${d.comm?fmt(d.comm):'—'}</td><td style="padding:10px 14px;font-size:14px;font-weight:700;">${pct}%</td></tr>`;}).join('')}</tbody></table></div>
+    ${syncedLeads.length?`<div style="margin-bottom:20px;"><div style="font-size:17px;font-weight:900;margin-bottom:6px;padding-bottom:8px;border-bottom:2px solid #e0dbd2;">🟢 Synchronized — Active</div>
+    <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#eaf4e0;">${['Name','Intent','Project','Stage','Budget','Unit Value','Commission','Score','Next Action'].map(h=>`<th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;color:#2e7d32;border-bottom:2px solid #b0d8a0;">${h}</th>`).join('')}</tr></thead>
+    <tbody>${syncedLeads.map((l,i)=>`<tr style="background:${i%2===0?'#fff':'#f8fff8'};"><td style="padding:10px 12px;font-size:13px;font-weight:800;">${l.name}</td><td style="padding:10px 12px;font-size:12px;">${intentLabel(l.intentType)}</td><td style="padding:10px 12px;font-size:13px;">${l.project||'—'}</td><td style="padding:10px 12px;font-size:13px;">${l.stage}</td><td style="padding:10px 12px;font-size:13px;">${l.budget?fmt(parseFloat(l.budget)):'—'}</td><td style="padding:10px 12px;font-size:13px;font-weight:700;">${l.value?fmt(parseFloat(l.value)):'—'}</td><td style="padding:10px 12px;font-size:13px;font-weight:700;color:#b8860b;">${l.value?fmt(getGrossComm(l)):'—'}</td><td style="padding:10px 12px;font-size:13px;font-weight:700;">${l.score!=null?l.score+'/100':'—'}</td><td style="padding:10px 12px;font-size:12px;color:#2e5d8e;font-weight:600;">${l.nextAction||'—'}</td></tr>`).join('')}</tbody></table></div>`
+    :`<div style="padding:20px;background:#f9f7f3;border-radius:10px;font-weight:600;color:#8a8a7a;margin-bottom:20px;">No active synchronized leads.</div>`}
+  </div>`;
+}
+
+// HELPERS
+function clientTypeLabel(t){return t==='end_user'?'End User':t==='investor'?'Investor':t==='agent'?'Agent':'—';}
+function propertyTypeLabel(t){return t==='off_plan'?'Off-Plan':t==='ready'?'Ready/Secondary':'—';}
+function paymentLabel(p){const m={cash:'Cash',mortgage_approved:'Mortgage (Approved)',mortgage_not_approved:'Mortgage (Not Approved)',not_decided:'Not Decided'};return m[p]||'—';}
+function scoreChip(l){if(l.score==null)return'<span class="chip chip-score mode-unclassified">No Score</span>';const b=scoreBand(l.score);return`<span class="chip chip-score ${b.cls}">${l.score}/100</span>`;}
+function intentLabel(t){return INTENT_LABELS[t]||'—';}
+
+// SIGNAL SELECTION
+let selectedSignalKey='';
+let selectedSignalMode='';
+function selectSignal(btn,signal,mode){
+  // Clear all
+  document.querySelectorAll('.signal-btn').forEach(b=>{b.className='signal-btn';});
+  btn.classList.add('selected-'+mode);
+  document.getElementById('selectedSignal').value=signal;
+  document.getElementById('selectedMode').value=mode;
+  selectedSignalKey=signal;
+  selectedSignalMode=mode;
+  // Show intervention if blocked
+  const box=document.getElementById('interventionBox');
+  if(mode==='blocked'&&BLOCKED_INTERVENTIONS[signal]){
+    document.getElementById('interventionText').textContent=BLOCKED_INTERVENTIONS[signal];
+    box.classList.add('show');
+  }else{
+    box.classList.remove('show');
+  }
+}
+
+// MODALS
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function populateStageSelect(val){document.getElementById('lStage').innerHTML=STAGES.map(s=>`<option${s===val?' selected':''}>${s}</option>`).join('');}
+function onClientTypeChange(){updateCommPreview();}
+function onPropertyTypeChange(){document.getElementById('paymentGroup').className=document.getElementById('lPropertyType').value==='ready'?'payment-group visible':'payment-group';}
+function updateCommPreview(){
+  const ct=document.getElementById('lClientType').value;const cv=document.getElementById('lComm').value;
+  const val=parseFloat(document.getElementById('lValue').value)||0;
+  const rate=cv?parseFloat(cv):(ct==='agent'?1:SETTINGS.commRate);
+  document.getElementById('lCommPreview').textContent=val?`Est: ${fmt(val*rate/100)}`:`Default: ${rate}%`;
+}
+
+function openAddLead(){
+  document.getElementById('editLeadId').value='';document.getElementById('leadModalTitle').textContent='New Lead';
+  document.getElementById('deleteLeadBtn').style.display='none';
+  ['lName','lPhone','lPhone2','lNotes','lValue','lComm','lProject','lBudget'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lDate').value=today();document.getElementById('lClientType').value='end_user';
+  document.getElementById('lIntentType').value='';document.getElementById('lMode').value='';
+  document.getElementById('lSource').value='Referral';document.getElementById('lPropertyType').value='ready';
+  document.getElementById('paymentGroup').className='payment-group';
+  document.getElementById('lNextAction').value='';document.getElementById('lNextActionDate').value='';
+  populateStageSelect('New Lead');
+  document.getElementById('lCommPreview').textContent='Default: '+SETTINGS.commRate+'%';
+  openModal('addLeadModal');
+}
+
+function openEditLead(id){
+  const l=DB.leads.find(x=>x.id===id);if(!l)return;
+  document.getElementById('editLeadId').value=id;document.getElementById('leadModalTitle').textContent='Edit Lead';
+  document.getElementById('deleteLeadBtn').style.display='inline-block';
+  document.getElementById('lName').value=l.name;
+  document.getElementById('lPhone').value=l.phone||'';
+  document.getElementById('lPhone2').value=l.phone2||'';
+  document.getElementById('lNotes').value=l.notes||'';
+  document.getElementById('lValue').value=l.value||'';document.getElementById('lComm').value=l.comm||'';
+  document.getElementById('lProject').value=l.project||'';document.getElementById('lBudget').value=l.budget||'';
+  document.getElementById('lDate').value=l.createdAt||today();
+  document.getElementById('lClientType').value=l.clientType||'end_user';
+  document.getElementById('lIntentType').value=l.intentType||'';
+  document.getElementById('lMode').value=getMode(l)||'';
+  document.getElementById('lSource').value=l.source||'Referral';
+  document.getElementById('lPropertyType').value=l.propertyType||'ready';
+  document.getElementById('paymentGroup').className=l.propertyType==='ready'?'payment-group visible':'payment-group';
+  if(l.payment)document.getElementById('lPayment').value=l.payment;
+  document.getElementById('lNextAction').value=l.nextAction||'';
+  document.getElementById('lNextActionDate').value=l.nextActionDate||'';
+  populateStageSelect(l.stage);updateCommPreview();
+  openModal('addLeadModal');
+}
+
+function saveLead(){
+  const id=document.getElementById('editLeadId').value;
+  const manualMode=document.getElementById('lMode').value||undefined;
+  const data={
+    name:document.getElementById('lName').value.trim(),
+    phone:document.getElementById('lPhone').value.trim().replace(/\s+/g,''),
+    phone2:document.getElementById('lPhone2').value.trim().replace(/\s+/g,''),
+    stage:document.getElementById('lStage').value,
+    source:document.getElementById('lSource').value,clientType:document.getElementById('lClientType').value,
+    intentType:document.getElementById('lIntentType').value,
+    mode:manualMode||undefined,
+    propertyType:document.getElementById('lPropertyType').value,payment:document.getElementById('lPayment').value,
+    project:document.getElementById('lProject').value.trim(),budget:document.getElementById('lBudget').value.trim(),
+    value:document.getElementById('lValue').value.trim(),comm:document.getElementById('lComm').value.trim(),
+    notes:document.getElementById('lNotes').value.trim(),createdAt:document.getElementById('lDate').value||today(),
+    nextAction:document.getElementById('lNextAction').value,nextActionDate:document.getElementById('lNextActionDate').value,
+  };
+  if(!data.name){alert('Name is required.');return;}
+  if(id){
+    const existing=DB.leads.find(l=>l.id===Number(id));
+    Object.assign(existing,data);
+    // Only override mode if manually set and no signal logs yet
+    const sigLogs=DB.logs.filter(l=>l.leadId===Number(id)&&l.signal);
+    if(!sigLogs.length&&manualMode)existing.mode=manualMode;
+  }else{
+    DB.leads.push({id:DB.nextLeadId++,...data,score:null,scoreHistory:[]});
+  }
+  saveDB();closeModal('addLeadModal');renderDashboard();renderPipeline();renderLeadsList();
+}
+
+function deleteCurrentLead(){
+  const id=Number(document.getElementById('editLeadId').value);if(!confirm('Delete this lead?'))return;
+  DB.leads=DB.leads.filter(l=>l.id!==id);saveDB();closeModal('addLeadModal');renderDashboard();renderPipeline();renderLeadsList();
+}
+
+function populateLogLeadSelect(selectedId){
+  document.getElementById('logLead').innerHTML='<option value="">— No lead —</option>'+DB.leads.map(l=>`<option value="${l.id}"${l.id===selectedId?' selected':''}>${l.name}</option>`).join('');
+}
+
+function selectPeriod(btn,val){document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');document.getElementById('selectedPeriod').value=val;}
+
+function openAddLog(){
+  document.getElementById('editLogId').value='';document.getElementById('logModalTitle').textContent='Log Activity';
+  document.getElementById('deleteLogBtn').style.display='none';document.getElementById('logNotes').value='';
+  document.getElementById('logType').value='Call';document.getElementById('selectedPeriod').value='';
+  document.getElementById('selectedSignal').value='';document.getElementById('selectedMode').value='';
+  document.getElementById('logDate').value=today();
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.signal-btn').forEach(b=>b.className='signal-btn');
+  document.getElementById('interventionBox').classList.remove('show');
+  selectedSignalKey='';selectedSignalMode='';
+  populateLogLeadSelect(null);openModal('addLogModal');
+}
+function openAddLogForLead(leadId){openAddLog();document.getElementById('logLead').value=leadId;}
+function openEditLog(id){
+  const l=DB.logs.find(x=>x.id===id);if(!l)return;
+  document.getElementById('editLogId').value=id;document.getElementById('logModalTitle').textContent='Edit Log';
+  document.getElementById('deleteLogBtn').style.display='inline-block';document.getElementById('logNotes').value=l.notes||'';
+  document.getElementById('logType').value=l.type;document.getElementById('logDate').value=l.date||today();
+  document.getElementById('selectedPeriod').value=l.period||'';
+  document.querySelectorAll('.period-btn').forEach(b=>{b.classList.toggle('selected',b.textContent.trim().replace(/^[^\s]+\s/,'')===l.period);});
+  populateLogLeadSelect(l.leadId);
+  document.getElementById('selectedSignal').value=l.signal||'';
+  document.getElementById('selectedMode').value=l.signalMode||'';
+  selectedSignalKey=l.signal||'';selectedSignalMode=l.signalMode||'';
+  document.querySelectorAll('.signal-btn').forEach(b=>b.className='signal-btn');
+  document.getElementById('interventionBox').classList.remove('show');
+  if(l.signal){
+    document.querySelectorAll('.signal-btn').forEach(btn=>{
+      if(btn.getAttribute('onclick')&&btn.getAttribute('onclick').includes(`'${l.signal}'`)){
+        btn.classList.add('selected-'+(l.signalMode||''));
+        if(l.signalMode==='blocked'&&BLOCKED_INTERVENTIONS[l.signal]){
+          document.getElementById('interventionText').textContent=BLOCKED_INTERVENTIONS[l.signal];
+          document.getElementById('interventionBox').classList.add('show');
+        }
+      }
+    });
+  }
+  openModal('addLogModal');
+}
+
+function saveLog(){
+  const period=document.getElementById('selectedPeriod').value;if(!period){alert('Please select a time period.');return;}
+  const signal=document.getElementById('selectedSignal').value;if(!signal){alert('Please select how they left it.');return;}
+  const signalMode=document.getElementById('selectedMode').value;
+  const id=document.getElementById('editLogId').value;
+  const leadId=document.getElementById('logLead').value?Number(document.getElementById('logLead').value):null;
+  const data={leadId,type:document.getElementById('logType').value,signal,signalMode,period,notes:document.getElementById('logNotes').value.trim(),date:document.getElementById('logDate').value||today()};
+
+  if(id)Object.assign(DB.logs.find(l=>l.id===Number(id)),data);
+  else DB.logs.push({id:DB.nextLogId++,...data});
+
+  // Update lead's mode field based on computed mode (for storage)
+  if(leadId){
+    const lead=DB.leads.find(l=>l.id===leadId);
+    if(lead){
+      const newMode=computeMode(lead);
+      if(newMode)lead.mode=newMode;
+    }
+  }
+
+  saveDB();closeModal('addLogModal');renderDaily();renderDashboard();
+}
+
+function deleteCurrentLog(){
+  const id=Number(document.getElementById('editLogId').value);if(!confirm('Delete this log?'))return;
+  DB.logs=DB.logs.filter(l=>l.id!==id);saveDB();closeModal('addLogModal');renderDaily();renderDashboard();
+}
+
+// SCORE
+function toggleCheck(id){const el=document.getElementById(id);el.checked=!el.checked;calcScore();}
+function selectRadio(name,id){document.getElementById(id).checked=true;calcScore();}
+function calcScore(){
+  let s1=(document.getElementById('sc1a').checked?10:0)+(document.getElementById('sc1b').checked?10:0)+(document.getElementById('sc1c').checked?10:0);
+  if(document.getElementById('sc1d').checked)s1=Math.min(s1,10);
+  const s2=parseInt(document.querySelector('input[name="urgency"]:checked')?.value||0);
+  const s3=parseInt(document.querySelector('input[name="fit"]:checked')?.value||5);
+  const s4=parseInt(document.querySelector('input[name="engage"]:checked')?.value||0);
+  const total=s1+s2+s3+s4;const band=scoreBand(total);
+  document.getElementById('scoreBigDisplay').textContent=total;
+  const tag=document.getElementById('scoreBandTag');tag.textContent=band.label;tag.className=band.cls;
+  document.getElementById('scoreFollowup').textContent=band.follow;
+  return{total,band:band.label,s1,s2,s3,s4};
+}
+function openScore(id){
+  const lead=DB.leads.find(l=>l.id===id);if(!lead)return;
+  document.getElementById('scoreLeadId').value=id;
+  document.getElementById('scoreModalTitle').textContent='Score — '+lead.name;
+  ['sc1a','sc1b','sc1c','sc1d'].forEach(x=>document.getElementById(x).checked=false);
+  document.getElementById('u0').checked=true;document.getElementById('f5').checked=true;document.getElementById('e0').checked=true;
+  document.getElementById('scoreNotes').value='';calcScore();
+  const hist=lead.scoreHistory||[];const sec=document.getElementById('scoreHistorySection');
+  if(hist.length){sec.style.display='block';document.getElementById('scoreHistoryList').innerHTML=hist.slice().reverse().map(h=>`<div style="padding:10px 14px;background:var(--surface2);border-radius:8px;margin-bottom:8px;border:1.5px solid var(--border);"><div class="${scoreBand(h.total).cls}" style="margin-bottom:4px;font-weight:700;">${h.total}/100 — ${h.band}</div><div style="font-size:12px;color:var(--muted);font-weight:600;">${h.date}${h.notes?' · '+h.notes:''}</div></div>`).join('');}
+  else sec.style.display='none';
+  openModal('scoreModal');
+}
+function saveScore(){
+  const id=Number(document.getElementById('scoreLeadId').value);
+  const lead=DB.leads.find(l=>l.id===id);if(!lead)return;
+  const result=calcScore();lead.score=result.total;
+  if(!lead.scoreHistory)lead.scoreHistory=[];
+  lead.scoreHistory.push({...result,date:today(),notes:document.getElementById('scoreNotes').value.trim()});
+  saveDB();closeModal('scoreModal');renderDashboard();renderPipeline();renderLeadsList();
+  if(document.getElementById('view-daily').classList.contains('active'))renderDaily();
+}
+
+function runCommand(){
+  const raw=document.getElementById('commandInput').value.trim();const result=document.getElementById('cmdResult');result.className='cmd-result';
+  try{if(raw.startsWith('INJECT_JS')){eval(raw.slice('INJECT_JS'.length).trim());result.textContent='✓ Done.';result.className='cmd-result ok';}else{result.textContent='✗ Must start with INJECT_JS';result.className='cmd-result err';}}
+  catch(e){result.textContent='✗ Error: '+e.message;result.className='cmd-result err';}
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({DB,SETTINGS},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mosaad_crm_'+today()+'.json';a.click();
+}
+function importData(){
+  const input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=e=>{const r=new FileReader();r.onload=ev=>{try{const p=JSON.parse(ev.target.result);if(p.DB)DB=p.DB;if(p.SETTINGS)SETTINGS=p.SETTINGS;migrateModes();saveDB();saveSettings();document.getElementById('commRate').value=SETTINGS.commRate;renderDashboard();alert('Imported successfully.');}catch{alert('Invalid file.');}};r.readAsText(e.target.files[0]);};
+  input.click();
+}
+
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('open');});
+document.getElementById('dateDisplay').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+loadDB();renderDashboard();
+</script>
+</body>
+</html>
